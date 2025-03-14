@@ -1,0 +1,25 @@
+---
+###############################################################################
+# Galera Cluster ({{ maria_role_confd }}/60-galera.cnf)
+###############################################################################
+# See the examples of server wsrep.cnf files in /usr/share/mariadb
+#
+# Reference:
+# * https://mariadb.com/kb/en/galera-cluster/
+
+# Galera settings.
+#
+# maria_galera_config:
+#     dict - Galera configuration section settings.
+#   {KEY}: str - Value.
+#
+# maria_galera_config:
+#   wsrep_on: 1
+#   wsrep_cluster_name: 'MariaDB Galera Cluster'
+#   wsrep_cluster_address: 'gcomm://'
+#
+# Default: {}
+#
+# Reference:
+# * https://mariadb.com/kb/en/galera-cluster-system-variables/
+maria_galera_config: {}

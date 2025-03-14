@@ -1,0 +1,209 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# MariaDB User Configuration
+###############################################################################
+
+# Database users to manage.
+#
+# Users are managed via MariaDB local root account.
+#
+# maria_users:
+#     list of dict - DB user definitions from community.mysql.mysql_users.
+#   - append_privs: bool - Append the privileges defined by priv to the
+#           existing ones for this user instead of overwriting existing ones.
+#           Mutually exclusive with subtract_privs.
+#         Default: omit.
+#     attributes: dict - Create, update, or delete user attributes (arbitrary
+#           ‘key: value’ comments) for the user. MySQL server must support the
+#           INFORMATION_SCHEMA.USER_ATTRIBUTES table. Provided since MySQL 8.0.
+#         Special Case:
+#           *: To delete an existing attribute, set its value to null.
+#         Default: omit.
+#     ca_cert: str - Path to Certificate Authority (CA) certificate. This
+#           option must specify the same certificate as used by server.
+#         Default: omit.
+#     check_hostname: bool - Validate server host SSL connection?
+#         Default: omit.
+#     check_implicit_admin: bool - Check if mysql allows login as
+#           root/nopassword before trying supplied credentials. If success,
+#           passed login_user/login_password will be ignored.
+#         Default: False.
+#     client_cert: str - Path to a client public key certificate.
+#         Default: omit.
+#     client_key: str - Path to the client private key.
+#         Default: omit.
+#     column_case_sensitive: bool - uppercase field names in privileges?
+#         Default: True.
+#     config_file: str - Path to config file containing login credentials.
+#           ~/.my.cnf will be read if it exists even if not specified.
+#         Special Case:
+#           *: Must contain [client] section as a MySQL connector requirement.
+#           '': set empty string to prevent file from being read.
+#         Default: '~/.my.cnf'.
+#     connect_timeout: int - Timeout when connecting to the MySQL server.
+#         Default: 30.
+#     encrypted: bool - Indicate password field is mysql_native_password hash.
+#         Default: False.
+#     force_context: bool - Sets the С(mysql) system database as context for
+#           the executed statements (it will be used as a database to connect
+#           to). Useful if you use binlog / replication filters in MySQL as per
+#           default the statements can not be caught by a binlog / replication
+#           filter, they require a database to be set to work, otherwise the
+#           replication can break down.
+#         Default: False.
+#
+#         Reference:
+#         * https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#option_mysqld_binlog-ignore-db
+#         * https://dev.mysql.com/doc/refman/8.0/en/replication-options-replica.html#option_mysqld_replicate-ignore-db
+#     host: str - host part of MySQL username.
+#         Default: 'localhost'.
+#     host_all: bool - Apply changes to all hostnames for a given user.
+#         Special Case:
+#           *: This option cannot be used when creating users.
+#         Default: False.
+#     login_host: str - Host running the database.
+#         Special Case:
+#           *: local connection may require
+#              login_unix_socket=/var/run/mysqld/mysqld.sock.
+#         Default: 'localhost'
+#     login_password: str - Password used to authenticate with.
+#         Default: omit.
+#     login_port: int - Port of the MySQL server.
+#         Special Case:
+#           *: Used only when login_host is defined.
+#         Default: 3306.
+#     login_unix_socket: str - Unix domain socket path for local connections.
+#         Special Case:
+#           *: Use this parameter to avoid error:
+#              'Please explicitly state intended protocol'.
+#         Default: '{{ maria_role_socket }}'.
+#     login_user: str - Username used to authenticate with.
+#         Default: omit.
+#     name: str - Name of the user (role) to add or remove.
+#     password: str - Set the user password.
+#           Only for mysql_native_password authentication. For other plugins
+#           see the combination of plugin, plugin_hash_string,
+#           plugin_auth_string.
+#         Default: omit.
+#     password_expire: str - password expiration policy.
+#         Values:
+#              never: Password will never expire.
+#            default: Password is defined using global system variable
+#                     default_password_lifetime setting.
+#           interval: Password will expire in days which is defined in
+#                     password_expire_interval.
+#                now: Password will expire immediately.
+#         Default: omit.
+#     password_expire_interval: int - Number of days password will expire.
+#           Requires password_expire=interval.
+#         Default: omit.
+#     plugin: str - Users plugin to authenticate.
+#         Default: omit.
+#     plugin_auth_string: str - Users plugin auth_string.
+#           Salt required for idempotence with caching_sha2_password and
+#           sha256_password plugins.
+#         Special Case:
+#           pam: optional plugin_auth_string can be used to choose a specific
+#                PAM service.
+#         Default: omit.
+#     plugin_hash_string: str - Users plugin hash string.
+#         Default: omit.
+#     priv: str - MySQL privileges auth_string.
+#             Format is based on MySQL GRANT statement. Database and table
+#             names can be quoted, MySQL-style. If column privileges are used,
+#             the priv1,priv2 part must be exactly as returned by a SHOW GRANT
+#             statement. If not followed, the module will always report
+#             changes. It includes grouping columns by permission
+#             (SELECT(col1,col2) instead of SELECT(col1,SELECT(col2))). Can be
+#             passed as a dictionary (see the examples). Supports GRANTs for
+#             procedures and functions (see the examples).
+#
+#             Note: If you pass the same db.table combination to this parameter
+#             two or more times with different privileges, only the last one
+#             will be applied. Combine operations instead, e.g.
+#             '*.*:SELECT,SHOW VIEW'.
+#         Special Case:
+#           {DB}.{TABLE}:{PRIV},{PRIV}: No spaces between the table and the
+#                                       privilege as this will yield a
+#                                       non-idempotent check mode.
+#                  {DB_PRIV}/{DB_PRIV}: Multiple privileges can be specified by
+#                                       separating each one using a forward
+#                                       slash: db.table1:priv/db.table2:priv.
+#         Default: omit.
+#     resource_limits: dict - Limit the user for certain server resources.
+#         Special Case:
+#           *: Used only when state=present.
+#       MAX_QUERIES_PER_HOUR: int - optional limit.
+#       MAX_UPDATES_PER_HOUR: int - optional limit.
+#       MAX_CONNECTIONS_PER_HOUR: int - optional limit.
+#       MAX_USER_CONNECTIONS: int - optional limit.
+#       MAX_STATEMENT_TIME: int - optional limit.
+#         Default: omit.
+#     salt: str - Salt used to generate password hash from plugin_auth_string.
+#         Special Case:
+#           *: Salt length must be 20 characters.
+#           *: Salt only supports caching_sha2_password or sha256_password
+#              authentication plugins.
+#         Default: omit.
+#     session_vars: dict - Dictionary of session variables set at the beginning
+#           of module execution. Cannot be used to set global variables, use
+#           community.mysql.mysql_variables module instead.
+#       {VAR}: {VALUE}
+#         Default: omit.
+#     sql_log_bin: bool - Enable binary logging?
+#         Default: True.
+#     state: str - Whether the user should exist.
+#         Values:
+#            absent: Removes user.
+#           present: Creates or updates user (default).
+#         Default: 'present'.
+#     subtract_privs: bool - Revoke the privileges defined by the priv option
+#           and keep other existing privileges. If set, invalid privileges in
+#           priv are ignored. Mutually exclusive with append_privs.
+#         Default: omit.
+#     tls_requires: dict - Set TLS requirements.
+#         Special Case:
+#           *: SUBJECT, ISSUER and CIPHER are complementary, and mutually
+#              exclusive with SSL and X509.
+#       ssl: str - require ssl.
+#       x509: str - required x509.
+#       subject: str - accepted subjects.
+#       issuer: str - accepted certificate authority.
+#       cipher: str - accepted ciphers.
+#         Default: omit.
+#
+#         Reference:
+#         * https://mariadb.com/kb/en/securing-connections-for-client-and-server/#requiring-tls.
+#     update_password: str - Password update policy.
+#         Values:
+#                    always: Update passwords if they differ. This affects
+#                            password and the combination of plugin,
+#                            plugin_hash_string, plugin_auth_string (default).
+#                 on_create: will only set the password or the combination of
+#                            plugin, plugin_hash_string, plugin_auth_string for
+#                            newly created users.
+#           on_new_username: works like on_create, but it tries to reuse an
+#                            existing password - if one different user with the
+#                            same username exists, or multiple different users
+#                            with the same username and equal plugin and
+#                            authentication_string attribute, the existing
+#                            plugin and authentication_string are used for the
+#                            new user instead of the password, plugin,
+#                            plugin_hash_string or plugin_auth_string argument.
+#         Default: 'always'.
+#
+# maria_users:
+#   - name: 'example'
+#     host 'localhost'
+#     password: '{{ vault_password }}'
+#     priv: '*.*:USAGE'
+#     state: 'present'
+#     append_privs: false
+#     encrypted: false
+#
+# Default: [].
+#
+# Reference:
+# * https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_user_module.html
+maria_users: []

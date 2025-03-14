@@ -1,0 +1,254 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# MariaDB Database Configuration
+###############################################################################
+
+# Databases to manage.
+#
+# maria_databases:
+#     list of dict - Database definitions from community.mysql.mysql_db.
+#   - ca_cert: str - Path to Certificate Authority (CA) certificate. This
+#           option must specify the same certificate as used by user.
+#         Default: omit.
+#     chdir: str - Path specifying working directory to use. Can be useful when
+#           state=import and a dump file contains relative paths.
+#         Default: omit.
+#     check_hostname: bool - Validate client host SSL connection?
+#         Default: omit.
+#     check_implicit_admin: bool - Check if mysql allows login as
+#           root/nopassword before trying supplied credentials. If success,
+#           passed login_user/login_password will be ignored.
+#         Default: False.
+#     client_cert: str - Path to a client public key certificate.
+#         Default: omit.
+#     client_key: str - Path to the client private key.
+#         Default: omit.
+#     collation: str - Collation mode (sorting). This only applies to new
+#           table/databases and does not update existing ones, this is a
+#           limitation of MySQL. Do not use utf8_general_ci going forward.
+#         Default: 'utf8_unicode_520_ci' (UTF8, case insensitive).
+#
+#         Reference:
+#         * https://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci
+#     config_file: str - Path to config file containing login credentials.
+#           ~/.my.cnf will be read if it exists even if not specified.
+#         Special Case:
+#           *: Must contain [client] section as a MySQL connector requirement.
+#           '': set empty string to prevent file from being read.
+#         Default: '~/.my.cnf'.
+#     config_overrides_defaults: bool - config_file overrides defaults?
+#            Applies to login_host and login_port parameters.
+#         Default: False.
+#     connect_timeout: int - Timeout when connecting to the MySQL server.
+#         Default: 30.
+#     dump_extra_args: str - Provide additional arguments for mysqldump.
+#           Used when state=dump only, ignored otherwise.
+#         Default: omit.
+#     encoding: str - Encoding mode to use at creation of database, dump or
+#           importation of sql script.
+#         Default: 'utf8'.
+#     force: bool - Continue dump or import even if we get an SQL error. Used
+#           only when state=dump|import.
+#         Default: False.
+#     hex_blob: bool - Dump binary columns using hexadecimal notation.
+#         Default: False.
+#     ignore_tables: list of str - Table names that will be ignored in the dump
+#           of the form database_name.table_name.
+#         Default: omit.
+#     login_host: str - Host running the database.
+#         Special Case:
+#           *: local connection may require
+#              login_unix_socket=/var/run/mysqld/mysqld.sock.
+#         Default: 'localhost'
+#     login_password: str - Password used to authenticate with.
+#         Default: omit.
+#     login_port: int - Port of the MySQL server.
+#         Special Case:
+#           *: Used only when login_host is defined.
+#         Default: 3306.
+#     login_unix_socket: str - Unix domain socket path for local connections.
+#         Special Case:
+#           *: Use this parameter to avoid error:
+#              'Please explicitly state intended protocol'.
+#         Default: '{{ maria_role_socket }}'.
+#     login_user: str - Username used to authenticate with.
+#         Default: omit.
+#     master_data: int - Option to dump a master replication server to produce
+#           a dump file that can be used to set up another server as a slave of
+#           the master. Can be used when state=dump.
+#         Values:
+#           0: Do not include master data.
+#           1: Generate a 'CHANGE MASTER TO' statement required on the slave to
+#              start the replication process.
+#           2: Generate a commented 'CHANGE MASTER TO'.
+#         Default: 0.
+#     name: str or list of str - Name of the database to add or remove.
+#         Special Case:
+#              all: Only used with state=dump|import; works like –all-databases
+#                   option for mysqldump.
+#           {LIST}: Use list when state=dump|present|absent.
+#     pipefail: bool - Use bash instead of sh?
+#         Special Case:
+#           *: '-o pipefail' added to catch errors from the mysql_dump command
+#              when state=dump and compression is used.
+#         Default: True.
+#     quick: bool - Dump tables row by row (use for large tables)?
+#         Default: True.
+#     restrict_config_file: bool - Read only passed config_file?
+#           When state is dump or import, by default the module passes
+#           config_file parameter using --defaults-extra-file command-line
+#           argument to mysql/mysqldump utilities under the hood that read
+#           named option file in addition to usual option files.
+#
+#           Use to read only named option file.
+#         Default: False.
+#     single_transaction: bool - Execute the dump in a single transaction?
+#         Default: False.
+#     skip_lock_tables: bool - Skip locking tables for read?
+#           Used when state=dump, ignored otherwise.
+#         Default: False.
+#     state: str - The database state.
+#         Values:
+#            absent: Remove database.
+#              dump: Dump database.
+#            import: Import database.
+#           present: Create database if needed.
+#         Default: 'present'.
+#     target: str - Remote host path of dump file to read from or write to.
+#           Uncompressed SQL files (.sql) as well as bzip2 (.bz2), gzip (.gz),
+#           xz (Added in 2.0) and zstd (.zst) (Added in 3.12.0) compressed
+#           files are supported.
+#         Default: omit.
+#     unsafe_login_password: bool - Do not shell escape login_password?
+#           Used only when state=dump|import and login_password is used,
+#           ignored otherwise.
+#         Values:
+#            True: Do NOT use shell-escaped version of login_password value;
+#                  use only if there are special symbols in the value and
+#                  'Access denied' errors occur.
+#           False: Use a shell-escaped version of login_password value.
+#         Default: False.
+#     use_shell: bool - Prevent Broken pipe errors?
+#           Internally execute commands via a shell. Used when the imported
+#           target file is compressed and state=import.
+#         Default: False.
+#     extensions: dict - Database role extensions.
+#       db_import: dict - Database import options.
+#         enable: bool - Enable imports?
+#               Import occurs only when database is created and this option is
+#               enabled.
+#             Default: False.
+#         source: str - database to import.
+#               Source file is copied, imported, then removed.
+#             Values:
+#               {PATH}: Sourced from ansible controller; must NOT be compressed
+#                       archive.
+#
+#                       source: 'host_vars/db.example.com/data/skeleton.sql'
+#                   '': Use 'latest' individual DB backup from
+#                       maria_databases_backup_dir (default).
+#             Default: '' (use latest backup).
+#
+# maria_databases:
+#   - name: 'example_import_from_controller'
+#     collation: 'utf8_unicode_520_ci'
+#     encoding: 'utf8'
+#     state: 'present'
+#     extensions:
+#       db_import:
+#         enable: true
+#         source: 'host_vars/db.example.com/data/skeleton_db.sql'
+#   - name: 'example_import_from_latest_backup'
+#     collation: 'utf8_unicode_520_ci'
+#     encoding: 'utf8'
+#     state: 'present'
+#     extensions:
+#       db_import:
+#         enable: true
+#
+# Default: [].
+#
+# Reference:
+# # https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_db_module.html
+maria_databases: []
+
+###############################################################################
+# MariaDB Database Backups
+###############################################################################
+# Backups are done through mariadb-dump and executed as root on a schedule.
+# Databases date stamped, linked to 'latest', removing 'other' permissions.
+#
+# All backups except 'latest' are compressed with tar.xz.
+#
+# Disable if custom or complex backups are needed.
+
+# Enable database backup service? Default: True.
+maria_databases_backup_enable: true
+
+# Enable all database backups?
+#
+# May be used with maria_databases_backup_individual_enable.
+#
+# All databases will be backed up to:
+# * maria_databases_backup_dir/all-databases-{DATE}.sql
+# * maria_databases_backup_dir/all-databases-latest.sql ->
+#   maria_databases_backup_dir/all-databases-{DATE}.sql
+#
+# Default: True.
+maria_databases_backup_all_enable: true
+
+# Enable individual database backups?
+#
+# May be used with maria_databases_backup_all_enable.
+#
+# All databases will be backed up individually to:
+# * maria_databases_backup_dir/{DB}-{DATE}.sql
+# * maria_databases_backup_dir/{DB}-latest.sql ->
+#   maria_databases_backup_dir/{DB}-{DATE}.sql
+#
+# Default: True.
+maria_databases_backup_individual_enable: true
+
+# Backup location.
+#
+# Directory will be created with root permissions.
+#
+# Default: '/var/lib/maria_backup'.
+maria_databases_backup_dir: '/var/lib/maria_backup'
+
+# Backup file owner. Default: 'root'.
+maria_databases_backup_owner: 'root'
+
+# Backup file group. Default: 'root'.
+maria_databases_backup_group: 'root'
+
+# Set backup schedule.
+#
+# Uses systemd TIME specification.
+#
+# Default: 'weekly'
+#
+# Reference:
+# * https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html
+maria_databases_backup_schedule: 'weekly'
+
+# List of mariadb-dump options for backing up databases.
+#
+# Default:
+#   - '--routines'
+#   - '--events'
+#   - '--triggers'
+#   - '--complete-insert'
+#   - '--create-options'
+#   - '--single-transaction'
+#
+# Reference:
+# * https://manpages.debian.org/bookworm/mariadb-client/mariadb-dump.1.en.html
+maria_databases_backup_options:
+  - '--routines'
+  - '--events'
+  - '--triggers'
+  - '--complete-insert'
+  - '--create-options'
+  - '--single-transaction'

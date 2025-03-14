@@ -1,0 +1,12 @@
+{% if maria_client_all is defined and maria_client_all | length > 0 %}
+[client]
+{% for key, value in maria_client_all.items() %}
+{{ key }}={{ value }}
+{% endfor %}
+{% endif %}
+{% if maria_client_only is defined and maria_client_only | length > 0 %}
+[client-mariadb]
+{% for key, value in maria_client_only.items() %}
+{{ key }}={{ value }}
+{% endfor %}
+{% endif %}

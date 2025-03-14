@@ -1,0 +1,8 @@
+---
+- name: 'All options | converge'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'All options | converge | apply r_pufky.srv.maria'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.maria'

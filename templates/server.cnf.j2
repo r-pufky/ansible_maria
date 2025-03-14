@@ -1,0 +1,24 @@
+{% if maria_server_server is defined and maria_server_server | length > 0 %}
+[server]
+{% for key, value in maria_server_server.items() %}
+{{ key }}={{ value }}
+{% endfor %}
+{% endif %}
+{% if maria_server_embedded is defined and maria_server_embedded | length > 0 %}
+[embedded]
+{% for key, value in maria_server_embedded.items() %}
+{{ key }}={{ value }}
+{% endfor %}
+{% endif %}
+{% if maria_server_mariadb is defined and maria_server_mariadb | length > 0 %}
+{% for server in maria_server_mariadb %}
+{% if server.version | lower == 'all' %}
+[mariadbd]
+{% else %}
+[mariadb-{{ server.version }}]
+{% endif %}
+{% for key, value in server.config.items() %}
+{{ key }}={{ value }}
+{% endfor %}
+{% endfor %}
+{% endif %}

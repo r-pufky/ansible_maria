@@ -1,0 +1,77 @@
+---
+# yamllint disable rule:line-length
+#
+# Confirm:
+# * Each option section is rendered correctly.
+# * mariadb_clients explicitly not tested as it is straight rendering.
+dependency:
+  name: 'galaxy'
+driver:
+  name: 'podman'
+provisioner:
+  name: 'ansible'
+  config_options:
+    defaults:
+      interpreter_python: 'auto_silent'
+      callback_whitelist: 'profile_tasks, timer, yaml'
+    ssh_connection:
+      pipelining: false
+  inventory:
+    group_vars:
+      all:
+        maria_service_password: 'test'
+        maria_service_certs_path: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/certs'
+        maria_client_only:
+          connect_timeout: 30
+        maria_settings_extensions:
+          - section: 'mariadbd'
+            config:
+              bind_address: '127.0.0.1'
+        maria_galera_config:
+          wsrep_cluster_name: 'MariaDB Galera Cluster'
+        maria_mariadb_client:
+          socket: '/run/mysqld/mysqld.sock'
+        maria_mariadb_upgrade:
+          socket: '/run/mysqld/mysqld.sock'
+        maria_mariadb_admin:
+          socket: '/run/mysqld/mysqld.sock'
+        maria_mariadb_binlog:
+          socket: '/run/mysqld/mysqld.sock'
+        maria_mariadb_check:
+          socket: '/run/mysqld/mysqld.sock'
+        maria_mariadb_dump:
+          socket: '/run/mysqld/mysqld.sock'
+        maria_mariadb_import:
+          socket: '/run/mysqld/mysqld.sock'
+        maria_mariadb_show:
+          socket: '/run/mysqld/mysqld.sock'
+        maria_mariadb_slap:
+          socket: '/run/mysqld/mysqld.sock'
+platforms:
+  - name: 'maria-debian-12-all_options'
+    image: 'ghcr.io/hifis-net/debian-systemd:12'
+    systemd: 'always'
+    volumes:
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    command: '/lib/systemd/systemd'
+    pre_build_image: true
+verifier:
+  name: 'ansible'
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .
+scenario:
+  test_sequence:
+    # - 'dependency'
+    # - 'cleanup'
+    - 'destroy'
+    - 'syntax'
+    - 'create'
+    # - 'prepare'
+    - 'converge'
+    # - 'idempotence'  # systemd services.
+    # - 'side_effect'
+    - 'verify'
+    # - 'cleanup'
+    - 'destroy'

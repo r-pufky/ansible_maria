@@ -1,0 +1,86 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Secure MariaDB
+###############################################################################
+# /usr/bin/mariadb-secure-installation does the same steps below, and can be
+# run to verify correctness.
+#
+# Local socket connections require authentication if password is set.
+#
+# Catch-22 problem exists with root password changes as the password being set
+# and the password being changed are on the same account. This is mitigated by
+# using a '.my.cnf' (containing any pre-written credentials containing the old
+# password if deployed), logging in with those credentials (or default root
+# with no password credentials via implicit admin) and immediately issuing a
+# password change, then re-writing the credential file. This is the recommended
+# practice from community.mysql_user.
+#
+# Reference:
+# * https://github.com/MariaDB/server/blob/main/scripts/mysql_secure_installation.sh
+# * https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_query_module.html#notes
+# * https://mariadb.com/kb/en/mariadb-secure-installation/
+# * https://www.digitalocean.com/community/tutorials/how-to-reset-your-mysql-or-mariadb-root-password
+
+- name: 'Secure | set root password'
+  community.mysql.mysql_user:
+    name: 'root'
+    host_all: true  # root@*
+    priv: '*.*:ALL,GRANT'
+    password: '{{ maria_service_password }}'
+    login_password: '{{ maria_service_password }}'
+    login_unix_socket: '{{ maria_role_socket }}'
+    check_implicit_admin: true
+    column_case_sensitive: true
+    state: 'present'
+  no_log: true  # passwords
+
+- name: 'Secure | update /root/.my.cnf'
+  ansible.builtin.template:
+    src: 'my.cnf.j2'
+    dest: '/root/.my.cnf'
+    owner: 'root'
+    group: 'root'
+    mode: '0400'
+  no_log: true  # passwords
+
+# remove_remote_root()
+- name: 'Secure | delete remote root users'
+  community.mysql.mysql_query:
+    login_db: 'mysql'
+    query: "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
+    login_unix_socket: '{{ maria_role_socket }}'
+
+# remove_anonymous_users()
+- name: 'Secure | delete all anonymous users'
+  community.mysql.mysql_query:
+    login_db: 'mysql'
+    query: "DELETE FROM mysql.global_priv WHERE User=''"
+    login_unix_socket: '{{ maria_role_socket }}'
+
+# remove_test_database()
+- name: 'Secure | delete test database'
+  community.mysql.mysql_db:
+    name: 'test'
+    state: 'absent'
+    login_unix_socket: '{{ maria_role_socket }}'
+
+- name: 'Secure | remove test database privileges'
+  community.mysql.mysql_query:
+    login_db: 'mysql'
+    query: "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'"
+    login_unix_socket: '{{ maria_role_socket }}'
+
+# reload_privilege_tables()
+- name: 'Secure | flush privileges'
+  community.mysql.mysql_query:
+    login_db: 'mysql'
+    query: "FLUSH PRIVILEGES"
+    login_unix_socket: '{{ maria_role_socket }}'
+
+- name: 'Secure | SECURITY NOTIFICATION'
+  ansible.builtin.debug:
+    msg: |
+      Installation secured. May manually re-run with:
+
+        /usr/bin/mariadb-secure-installation

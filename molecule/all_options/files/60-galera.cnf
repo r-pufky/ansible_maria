@@ -1,0 +1,2 @@
+[galera]
+wsrep_cluster_name=MariaDB Galera Cluster

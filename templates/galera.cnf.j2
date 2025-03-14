@@ -1,0 +1,4 @@
+[galera]
+{% for key, value in maria_galera_config.items() %}
+{{ key }}={{ value }}
+{% endfor %}

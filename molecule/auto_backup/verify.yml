@@ -1,0 +1,57 @@
+---
+# yamllint disable rule:line-length
+- name: 'Auto backup | verify database'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'Auto backup | verify database | gather service status'
+      ansible.builtin.service_facts:
+
+    - name: 'Auto backup | verify database | assert mariadb.service active'
+      ansible.builtin.assert:
+        that:
+          - '"mariadb.service" in ansible_facts.services'
+          - 'ansible_facts["services"]["mariadb.service"]["state"] == "running"'
+        fail_msg: 'mariadb.service should be enabled and running.'
+
+    - name: 'Auto backup | verify database | query skeleton database'
+      community.mysql.mysql_query:
+        login_db: 'mysql'
+        query: 'SELECT schema_name FROM information_schema.schemata WHERE schema_name="skeleton"'
+        login_unix_socket: '/run/mysqld/mysqld.sock'
+      register: _maria_query
+
+    - name: 'Auto backup | verify database | assert skeleton database create'
+      ansible.builtin.assert:
+        that: _maria_query.rowcount[0] == 1
+        fail_msg: 'skeleton database should have been created.'
+
+    - name: 'Auto backup | verify database | query skeleton.backup table'
+      community.mysql.mysql_query:
+        login_db: 'mysql'
+        query: 'SELECT * FROM information_schema.tables WHERE table_schema="skeleton" AND table_name="backup"'
+        login_unix_socket: '/run/mysqld/mysqld.sock'
+      register: _maria_query
+
+    - name: 'Auto backup | verify database | assert skeleton.backup exists'
+      ansible.builtin.assert:
+        that: _maria_query.rowcount[0] == 1
+        fail_msg: >
+          skeleton.backup table should exist
+          (skeleton should have been imported from auto backup).
+
+# Systemd services tested in r_pufky.srv.systemd.
+- name: 'Auto backup | verify backup disabled'
+  hosts: 'maria-debian-12-auto_backup-disable'
+  gather_facts: false
+  tasks:
+    - name: 'Auto backup | verify backup disabled | query maria_backup'
+      ansible.builtin.stat:
+        path: '/etc/mysql/mariadb.conf.d/maria_backup'
+      register: _test_maria_backup
+
+    - name: 'Auto backup | verify backup disabled| assert maria_backup'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_backup.stat.exists
+        fail_msg: '/etc/mysql/mariadb.conf.d/maria_backup should be removed.'

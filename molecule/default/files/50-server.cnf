@@ -1,0 +1,5 @@
+[mariadbd]
+pid_file=/run/mysqld/mysqld.pid
+basedir=/usr
+bind_address=127.0.0.1
+expire_logs_days=10

@@ -1,0 +1,60 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# MariaDB Role Options
+###############################################################################
+
+# Last time MariaDB options were validated against a default configuration.
+maria_role_validate_date: '2025-03-11'
+maria_role_validate_release: 'bookworm'
+maria_role_validate_version: '11.rolling'
+
+maria_role_socket: '/run/mysqld/mysqld.sock'
+maria_role_confd: '/etc/mysql/mariadb.conf.d'
+
+###############################################################################
+# APT Packages
+###############################################################################
+#
+# Reference:
+# * https://mariadb.org/download
+# * https://deb.mariadb.org/11.8/debian
+
+maria_role_packages:
+  - 'mariadb-server'
+  - 'python3-mysqldb'  # community.mysql.
+  - 'python3-pymysql'  # community.mysql.
+  - 'xz-utils'  # tar.xz backups.
+
+maria_role_apt_sources:
+  - name: 'mariadb'
+    types:
+      - 'deb'
+    uris: 'https://deb.mariadb.org/{{ maria_service_version | default("11.rolling") }}/debian'
+    suites:
+      - 'bookworm'
+    components:
+      - 'main'
+    signed_by: 'https://mariadb.org/mariadb_release_signing_key.pgp'
+
+###############################################################################
+# Default MariaDB User/Group
+###############################################################################
+
+maria_role_group:
+  name: 'mysql'
+  gid: 301
+
+maria_role_user:
+  name: 'mysql'
+  group: 'mysql'
+  uid: 301
+  shell: '/bin/false'
+  home: '/nonexistent'
+  comment: 'MariaDB Server,,,'
+  create_home: false
+  password: '!'
+  password_lock: true
+  update_password: 'always'
+  expires: -1
+  system: true
