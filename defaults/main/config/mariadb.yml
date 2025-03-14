@@ -1,0 +1,33 @@
+---
+###############################################################################
+# MariaDB Server (/etc/mysql/mariadb.cnf) Configuration
+###############################################################################
+# See maria_service_certs_path for managing certificates.
+
+# [client-server] section.
+#
+# This group is read both by the client and the server use it for options that
+# affect everything. Setting should be in config/*.yml sections.
+#
+# maria_service_client_server:
+#     dict - MariaDB configuration section settings.
+#   {KEY}: str - Value.
+#
+# Default:
+#   socket: '/run/mysqld/mysqld.sock'
+maria_mariadb_client_server:
+  socket: '/run/mysqld/mysqld.sock'
+
+# Enable include dir /etc/mysql/conf.d?
+#
+# Included after [client-server] before mariadb.conf.d.
+#
+# Default: True.
+maria_mariadb_include_confd_enable: true
+
+# Enable include dir maria_role_confd?
+#
+# Must be enabled to use any config/*.yml options. Included at end of file.
+#
+# Default: True.
+maria_mariadb_include_mariadb_confd_enable: true

@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# Backup & compression of Maria DBs
+#
+set -e
+DATE_STAMP=`date +%Y-%m-%d`
+OWNER='{{ maria_databases_backup_owner | default("root") }}'
+GROUP='{{ maria_databases_backup_group | default("root") }}'
+TARGET='{{ maria_databases_backup_dir | default("/var/lib/maria_backup") }}'
+OPTIONS='{{ maria_databases_backup_options | join(" ") }}'
+
+function dump_all () {
+  DUMP="${TARGET}/all-databases-${DATE_STAMP}.sql"
+  /usr/bin/mariadb-dump -u root ${OPTIONS} --all-databases > "${DUMP}"
+  chown ${OWNER}:${GROUP} "${DUMP}"
+  chmod o-rwx "${DUMP}"
+  ln -sf "${DUMP}" "${TARGET}/all-databases-latest.sql"
+
+  compress_db all-databases
+}
+
+function dump_dbs () {
+  /usr/bin/mariadb -N -e 'show databases' | while read db; do
+    DUMP="${TARGET}/${db}-${DATE_STAMP}.sql"
+    /usr/bin/mariadb-dump -u root ${OPTIONS} "${db}" > "${DUMP}"
+    chown ${OWNER}:${GROUP} "${DUMP}"
+    chmod o-rwx "${DUMP}"
+    ln -sf "${DUMP}" "${TARGET}/${db}-latest.sql"
+    compress_db "${db}"
+  done
+}
+
+function compress_db () {
+  # Args
+  #   1: database name.
+  #
+  # Sort files by most recent time
+  # Ignore first two (latest symlink, current backup)
+  # Compress with maximum xz compression & remove original sql file
+  #
+  # Assumes latest symlink always exists.
+  ls -t "${TARGET}/${1}"-*.sql | awk 'NR>2' | xargs -i tar -I "xz -9" -cf {}.tar.xz {} --remove-files 2>/dev/null
+}
+
+{% if maria_databases_backup_all_enable | default(true) %}
+dump_all
+{% endif %}
+{% if maria_databases_backup_individual_enable | default(true) %}
+dump_dbs
+{% endif %}

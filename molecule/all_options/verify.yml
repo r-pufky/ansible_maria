@@ -1,0 +1,148 @@
+---
+# yamllint disable rule:line-length
+- name: 'All options | verify'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'All options | verify | gather service status'
+      ansible.builtin.service_facts:
+
+    - name: 'All options | verify | assert mariadb.service active'
+      ansible.builtin.assert:
+        that:
+          - '"mariadb.service" in ansible_facts.services'
+          - 'ansible_facts["services"]["mariadb.service"]["state"] == "running"'
+        fail_msg: 'mariadb.service should be enabled and running.'
+
+    - name: 'All options | verify | query mariadb.cnf'
+      ansible.builtin.copy:
+        src: 'files/mariadb.cnf'
+        dest: '/etc/mysql/mariadb.cnf'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      check_mode: true
+      diff: true
+      register: _test_maria_mariadb
+
+    - name: 'All options | verify | assert mariadb.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_mariadb.changed
+        fail_msg: >
+          /etc/mysql/mariadb.cnf is not in expected format:
+          {{ _test_maria_mariadb.diff }}.
+
+    - name: 'All options | verify | query 50-client.cnf'
+      ansible.builtin.copy:
+        src: 'files/50-client.cnf'
+        dest: '/etc/mysql/mariadb.conf.d/50-client.cnf'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      check_mode: true
+      diff: true
+      register: _test_maria_50_client
+
+    - name: 'All options | verify | assert 50-client.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_50_client.changed
+        fail_msg: >
+          /etc/mysql/mariadb.conf.d/50-client.cnf is not in expected format:
+          {{ _test_maria_50_client.diff }}.
+
+    - name: 'All options | verify | query 50-mariadb-clients.cnf'
+      ansible.builtin.copy:
+        src: 'files/50-mariadb-clients.cnf'
+        dest: '/etc/mysql/mariadb.conf.d/50-mariadb-clients.cnf'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      check_mode: true
+      diff: true
+      register: _test_maria_50_mariadb_clients
+
+    - name: 'All options | verify | assert 50-mariadb-clients.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_50_mariadb_clients.changed
+        fail_msg: >
+          /etc/mysql/mariadb.conf.d/50-mariadb-clients.cnf is not in expected format:
+          {{ _test_maria_50_mariadb_clients.diff }}.
+
+    - name: 'All options | verify | query 50-server.cnf'
+      ansible.builtin.copy:
+        src: 'files/50-server.cnf'
+        dest: '/etc/mysql/mariadb.conf.d/50-server.cnf'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      check_mode: true
+      diff: true
+      register: _test_maria_50_server
+
+    - name: 'All options | verify | assert 50-server.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_50_server.changed
+        fail_msg: >
+          /etc/mysql/mariadb.conf.d/50-server.cnf is not in expected format:
+          {{ _test_maria_50_server.diff }}.
+
+    - name: 'All options | verify | query 60-galera.cnf'
+      ansible.builtin.copy:
+        src: 'files/60-galera.cnf'
+        dest: '/etc/mysql/mariadb.conf.d/60-galera.cnf'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      check_mode: true
+      diff: true
+      register: _test_maria_60_galera
+
+    - name: 'All options | verify | assert 60-galera.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_60_galera.changed
+        fail_msg: >
+          /etc/mysql/mariadb.conf.d/60-galera.cnf is not in expected format:
+          {{ _test_maria_60_galera.diff }}.
+
+    - name: 'All options | verify | query 90-extensions.cnf'
+      ansible.builtin.copy:
+        src: 'files/90-extensions.cnf'
+        dest: '/etc/mysql/mariadb.conf.d/90-extensions.cnf'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      check_mode: true
+      diff: true
+      register: _test_maria_90_extensions
+
+    - name: 'All options | verify | assert 90-extensions.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_90_extensions.changed
+        fail_msg: >
+          /etc/mysql/mariadb.conf.d/90-extensions.cnf is not in expected format:
+          {{ _test_maria_90_extensions.diff }}.
+
+    - name: 'All options | verify | query test.cert'
+      ansible.builtin.copy:
+        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/certs/test.cert'
+        dest: '/etc/mysql/mariadb.conf.d/certs/test.cert'
+        owner: 'root'
+        group: 'root'
+        mode: '0600'
+      check_mode: true
+      diff: true
+      register: _test_maria_cert
+
+    - name: 'All options | verify | assert test.cert'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_cert.changed
+        fail_msg: >
+          /etc/mysql/mariadb.conf.d/certs/test.cert is not in expected format:
+          {{ _test_maria_cert.diff }}.

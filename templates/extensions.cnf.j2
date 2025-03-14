@@ -1,0 +1,8 @@
+{% if maria_settings_extensions is defined and maria_settings_extensions | length > 0 %}
+{% for server in maria_settings_extensions %}
+[{{ server.section }}]
+{% for key, value in server.config.items() %}
+{{ key }}={{ value }}
+{% endfor %}
+{% endfor %}
+{% endif %}

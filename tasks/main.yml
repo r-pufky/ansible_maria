@@ -1,0 +1,9 @@
+---
+- name: 'Install'
+  ansible.builtin.include_tasks: 'install.yml'
+- name: 'Config'
+  ansible.builtin.include_tasks: 'config.yml'
+- name: 'Secure'
+  ansible.builtin.include_tasks: 'secure.yml'
+- name: 'Manage'
+  ansible.builtin.include_tasks: 'manage.yml'

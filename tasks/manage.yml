@@ -1,0 +1,56 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Manage MariaDB
+###############################################################################
+# Manage user accounts & initial databases.
+#
+# Create databases before users to ensure privilege changes are applied.
+
+- name: 'Manage | DB '
+  ansible.builtin.include_tasks: 'import_db.yml'
+  loop: '{{ maria_databases }}'
+  loop_control:
+    loop_var: db
+    label:
+
+- name: 'Manage | users'
+  community.mysql.mysql_user:
+    append_privs: '{{ item.append_privs | default(omit) }}'
+    attributes: '{{ item.attributes | default(omit) }}'
+    ca_cert: '{{ item.ca_cert | default(omit) }}'
+    check_hostname: '{{ item.check_hostname | default(omit) }}'
+    check_implicit_admin: '{{ item.check_implicit_admin | default(false) }}'
+    client_cert: '{{ item.client_cert | default(omit) }}'
+    client_key: '{{ item.client_key | default(omit) }}'
+    column_case_sensitive: '{{ item.column_case_sensitive | default(true) }}'
+    config_file: '{{ item.config_file | default("~/.my.cnf") }}'
+    connect_timeout: '{{ item.connect_timeout | default(30) }}'
+    encrypted: '{{ item.encrypted | default(false) }}'
+    force_context: '{{ item.force_context | default(false) }}'
+    host: '{{ item.host | default("localhost") }}'
+    host_all: '{{ item.host_all | default(false) }}'
+    login_host: '{{ item.login_host | default("localhost") }}'
+    login_password: '{{ item.login_password | default(omit) }}'
+    login_port: '{{ item.login_port | default(3306) }}'
+    login_unix_socket: '{{ item.login_unix_socket | default(maria_role_socket) }}'
+    login_user: '{{ item.login_user | default(omit) }}'
+    name: '{{ item.name }}'
+    password: '{{ item.password | default(omit) }}'
+    password_expire: '{{ item.password_expire | default(omit) }}'
+    password_expire_interval: '{{ item.password_expire_interval | default(omit) }}'
+    plugin: '{{ item.plugin | default(omit) }}'
+    plugin_auth_string: '{{ item.plugin_auth_string | default(omit) }}'
+    plugin_hash_string: '{{ item.plugin_hash_string | default(omit) }}'
+    priv: '{{ item.priv | default(omit) }}'
+    resource_limits: '{{ item.resource_limits | default(omit) }}'
+    salt: '{{ item.salt | default(omit) }}'
+    session_vars: '{{ item.session_vars | default(omit) }}'
+    sql_log_bin: '{{ item.sql_log_bin | default(true) }}'
+    state: '{{ item.state | default("present") }}'
+    subtract_privs: '{{ item.subtract_privs | default(omit) }}'
+    tls_requires: '{{ item.tls_requires | default(omit) }}'
+    update_password: '{{ item.update_password | default("always") }}'
+  loop: '{{ maria_users }}'
+  loop_control:
+    label: '{{ item.name }}'

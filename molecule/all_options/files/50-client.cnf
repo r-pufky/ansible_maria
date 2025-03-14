@@ -1,0 +1,2 @@
+[client-mariadb]
+connect_timeout=30

@@ -1,0 +1,83 @@
+---
+# yamllint disable rule:line-length
+# Confirm:
+# * mariadb is active and running.
+# * Users test1, test2 created.
+# * Database skeleton_default created with skeleton_default.sql ansible
+#   import.
+# * Database skeleton_default is not overwritten with skeleton_modified.sql
+#   ansible import.
+# * Database empty is created.
+dependency:
+  name: 'galaxy'
+driver:
+  name: 'podman'
+provisioner:
+  name: 'ansible'
+  config_options:
+    defaults:
+      interpreter_python: 'auto_silent'
+      callback_whitelist: 'profile_tasks, timer, yaml'
+    ssh_connection:
+      pipelining: false
+  inventory:
+    group_vars:
+      all:
+        maria_service_password: 'test'
+        maria_users:
+          - name: 'test1'
+            host: '%'
+            password: 'test'
+          - name: 'test2'
+            host: '%'
+            password: 'test'
+        maria_databases:
+          - name: 'skeleton'
+            collation: 'utf8_unicode_520_ci'
+            encoding: 'utf8'
+            state: 'present'
+            extensions:
+              db_import:
+                enable: true
+                source: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/skeleton_default.sql'
+          - name: 'skeleton'
+            collation: 'utf8_unicode_520_ci'
+            encoding: 'latin1'
+            check_implicit_admin: true
+            state: 'present'
+            extensions:
+              db_import:
+                enable: true
+                source: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/skeleton_modified.sql'
+          - name: 'empty'
+            collation: 'utf8_unicode_520_ci'
+            encoding: 'utf8'
+            state: 'present'
+platforms:
+  - name: 'maria-debian-12-default'
+    image: 'ghcr.io/hifis-net/debian-systemd:12'
+    systemd: 'always'
+    volumes:
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    command: '/lib/systemd/systemd'
+    pre_build_image: true
+verifier:
+  name: 'ansible'
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .
+scenario:
+  test_sequence:
+    # - 'dependency'
+    # - 'cleanup'
+    - 'destroy'
+    - 'syntax'
+    - 'create'
+    # - 'prepare'
+    - 'converge'
+    # - 'idempotence'  # systemd services.
+    # - 'side_effect'
+    - 'verify'
+    # - 'cleanup'
+    - 'destroy'

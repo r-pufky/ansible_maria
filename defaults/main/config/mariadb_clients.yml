@@ -1,0 +1,88 @@
+---
+###############################################################################
+# MariaDB Clients ({{ maria_role_confd }}/50-mariadb-clients.cnf)
+###############################################################################
+# These groups are read by MariaDB command-line tools Use it for options that
+# affect only one utility. See maria_service_certs_path for managing
+# certificates.
+
+# [mariadb-client] section.
+#
+# maria_mariadb_client:
+#     dict - MariaDB client configuration section settings.
+#   {KEY}: str - Value.
+#
+# Default: {}
+maria_mariadb_client: {}
+
+# [mariadb-upgrade] section.
+#
+# maria_mariadb_upgrade:
+#     dict - MariaDB upgrade configuration section settings.
+#   {KEY}: str - Value.
+#
+# Default: {}
+maria_mariadb_upgrade: {}
+
+# [mariadb-admin] section.
+#
+# maria_mariadb_admin:
+#     dict - MariaDB admin configuration section settings.
+#   {KEY}: str - Value.
+#
+# Default: {}
+maria_mariadb_admin: {}
+
+# [mariadb-binlog] section.
+#
+# maria_mariadb_binlog:
+#     dict - MariaDB binlog configuration section settings.
+#   {KEY}: str - Value.
+#
+# Default: {}
+maria_mariadb_binlog: {}
+
+# [mariadb-check] section.
+#
+# maria_mariadb_check:
+#     dict - MariaDB check configuration section settings.
+#   {KEY}: str - Value.
+#
+# Default: {}
+maria_mariadb_check: {}
+
+# [mariadb-dump] section.
+#
+# maria_mariadb_dump:
+#     dict - MariaDB dump configuration section settings.
+#   {KEY}: str - Value.
+#
+# Default: {}
+maria_mariadb_dump: {}
+
+# [mariadb-import] section.
+#
+# maria_mariadb_import:
+#     dict - MariaDB import configuration section settings.
+#   {KEY}: str - Value.
+#
+# Default: {}
+maria_mariadb_import: {}
+
+# [mariadb-show] section.
+#
+# maria_mariadb_show:
+#     dict - MariaDB show configuration section settings.
+#   {KEY}: str - Value.
+#
+# Default: {}
+maria_mariadb_show: {}
+
+# [mariadb-slap] section.
+#
+# maria_mariadb_slap:
+#     dict - MariaDB slap configuration section settings.
+#   {KEY}: str - Value.
+#
+# Default: {}
+maria_mariadb_slap: {}

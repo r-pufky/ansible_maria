@@ -1,0 +1,30 @@
+---
+# yamllint disable rule:line-length
+- name: 'Auto backup | prepare'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'Auto backup | prepare | create backup directory'
+      ansible.builtin.file:
+        path: '/var/lib/maria_backup'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+        state: 'directory'
+
+    - name: 'Auto backup | prepare | set auto backup'
+      ansible.builtin.template:
+        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/backup.sql'
+        dest: '/var/lib/maria_backup/skeleton.sql'
+        owner: 'root'
+        group: 'root'
+        mode: '0640'
+
+    - name: 'Auto backup | prepare | link latest'
+      ansible.builtin.file:
+        src: '/var/lib/maria_backup/skeleton.sql'
+        path: '/var/lib/maria_backup/skeleton-latest.sql'
+        owner: 'root'
+        group: 'root'
+        mode: '0640'
+        state: 'link'

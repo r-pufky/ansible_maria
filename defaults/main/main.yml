@@ -1,0 +1,76 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# MariaDB Role Configuration
+###############################################################################
+# mariadb-secure-installation is always run to secure installation:
+# * Force local root password.
+# * Delete remote root users.
+# * Deletes all anonymous users.
+# * Delete test database & privileges.
+# * Flushes privileges.
+
+# Maria version to install.
+#
+# Additional versions may be specified from downloads but may not be fully
+# supported by the role.
+#
+# Values:
+#   11.rolling: Latest 11 stable release (default).
+#         11.8: 11.8 release.
+#         11.4: 11.4 release.
+#        10.11: 10.11 release.
+#
+# Reference:
+# * https://mariadb.org/download
+maria_service_version: '11.rolling'
+
+# Path to MariaDB certificates.
+#
+# Sourced from ansible controller; automatically placed in
+# {{ maria_role_confd }}/certs/ with correct permissions. Be sure to set
+# appropriate paths for MariaDB configuration settings.
+#
+# maria_service_certs_path: 'host_vars/db.example.com/data/certs'
+#
+# Default: '' (disabled).
+maria_service_certs_path: ''
+
+# MariaDB local root password.
+#
+# Role uses this account to manage MariaDB via local socket.
+#
+# Password is automatically set and updated on role application for:
+# * root@localhost
+# * root@127.0.0.1
+# * root@::1
+#
+# Generated password is predictable and should ALWAYS be changed.
+#
+# Default: '{RANDOM}' (idempotent based on hostname).
+maria_service_password: '{{ lookup("ansible.builtin.password", "/dev/null", chars=["ascii_lowercase", "ascii_uppercase", "digits"], length=32, seed=inventory_hostname) }}'
+
+###############################################################################
+# MariaDB User
+###############################################################################
+
+# User that MariaDB will run under.
+#
+# Enable maria_create_user if this account is not externally managed.
+#
+# Default: 'mysql'.
+maria_user: 'mysql'
+
+# Group that MariaDB will run under.
+#
+# Enable maria_create_user if this group is not externally managed.
+#
+# Default: 'mysql'.
+maria_group: 'mysql'
+
+# Create maria_user, maria_group if not detected?
+#
+# Applied via r_pufky.srv.users, see vars/main.yml for default user attributes.
+#
+# Default: True.
+maria_create_user: true

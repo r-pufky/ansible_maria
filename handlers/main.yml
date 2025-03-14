@@ -1,0 +1,10 @@
+---
+###############################################################################
+# MariaDB Handlers
+###############################################################################
+
+- name: 'Handlers | restart maria'
+  ansible.builtin.systemd:
+    name: 'mariadb'
+    state: 'restarted'
+    enabled: true
