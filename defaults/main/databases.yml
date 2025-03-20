@@ -170,7 +170,7 @@
 # Default: [].
 #
 # Reference:
-# # https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_db_module.html
+# * https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_db_module.html
 maria_databases: []
 
 ###############################################################################

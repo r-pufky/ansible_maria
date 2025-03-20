@@ -7,12 +7,12 @@
 #
 # Create databases before users to ensure privilege changes are applied.
 
-- name: 'Manage | DB '
+- name: 'Manage | DB'
   ansible.builtin.include_tasks: 'import_db.yml'
   loop: '{{ maria_databases }}'
   loop_control:
-    loop_var: db
-    label:
+    loop_var: 'db'
+    label: '{{ db.name }}'
 
 - name: 'Manage | users'
   community.mysql.mysql_user:

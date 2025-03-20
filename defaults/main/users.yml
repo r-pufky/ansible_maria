@@ -66,7 +66,7 @@
 #         Special Case:
 #           *: local connection may require
 #              login_unix_socket=/var/run/mysqld/mysqld.sock.
-#         Default: 'localhost'
+#         Default: 'localhost'.
 #     login_password: str - Password used to authenticate with.
 #         Default: omit.
 #     login_port: int - Port of the MySQL server.
