@@ -8,9 +8,7 @@
 #
 # Imports using maria_databases_backup_enable generate archives with a single
 # file in it; otherwise copy a single text .sql file from the controller and
-# execute import. If the import fails, cleanup the staged database. File
-# globbing not supported in ansible.builtin.file, so just use a generic shell
-# command to remove.
+# execute import. If the import fails, cleanup the staged database.
 #
 # Args:
 #   db: dict - maria_databases database definition.

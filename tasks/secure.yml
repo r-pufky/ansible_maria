@@ -47,15 +47,15 @@
 # remove_remote_root()
 - name: 'Secure | delete remote root users'
   community.mysql.mysql_query:
-    login_db: 'mysql'
     query: "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
+    login_db: 'mysql'
     login_unix_socket: '{{ maria_role_socket }}'
 
 # remove_anonymous_users()
 - name: 'Secure | delete all anonymous users'
   community.mysql.mysql_query:
-    login_db: 'mysql'
     query: "DELETE FROM mysql.global_priv WHERE User=''"
+    login_db: 'mysql'
     login_unix_socket: '{{ maria_role_socket }}'
 
 # remove_test_database()
@@ -67,15 +67,15 @@
 
 - name: 'Secure | remove test database privileges'
   community.mysql.mysql_query:
-    login_db: 'mysql'
     query: "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'"
+    login_db: 'mysql'
     login_unix_socket: '{{ maria_role_socket }}'
 
 # reload_privilege_tables()
 - name: 'Secure | flush privileges'
   community.mysql.mysql_query:
-    login_db: 'mysql'
     query: "FLUSH PRIVILEGES"
+    login_db: 'mysql'
     login_unix_socket: '{{ maria_role_socket }}'
 
 - name: 'Secure | SECURITY NOTIFICATION'
