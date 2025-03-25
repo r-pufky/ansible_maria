@@ -15,7 +15,6 @@ maria_role_confd: '/etc/mysql/mariadb.conf.d'
 ###############################################################################
 # APT Packages
 ###############################################################################
-#
 # Reference:
 # * https://mariadb.org/download
 # * https://deb.mariadb.org/11.8/debian
