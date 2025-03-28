@@ -1,0 +1,42 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Maria Prep
+###############################################################################
+# Prep Maria variables for installation and upgrade.
+#
+# Determine all user data directories and create/set permissions if they do not
+# exist. Run run data directories as the maria user as restricted mount
+# points may only allow that user to write to them (and squash everyone else to
+# nobody/nogroup).
+#
+# Generates:
+#   _maria_dbs: list of dict - server database configuration sections.
+
+- name: 'Prep | sanitize maria_server_mariadb'
+  when: maria_server_mariadb | length > 0  # Handles only embedded config, etc.
+  ansible.builtin.set_fact:
+    _maria_server_mariadb_data: '{{
+        _maria_server_mariadb_data | default([]) +
+        [item.config | default({})]
+      }}'
+  loop: '{{ maria_server_mariadb }}'
+  loop_control:
+    label: '{{ item.version }}'
+
+- name: 'Prep | generate database config sections'
+  ansible.builtin.set_fact:
+    _maria_dbs: '{{
+        ([maria_mariadb_client_server.datadir | default("")] +
+        [maria_server_server.datadir | default("")] +
+        _maria_server_mariadb_data | default([]) +
+        [maria_server_embedded.datadir | default("")]) |
+        flatten | unique | reject("equalto", "")
+      }}'
+
+- name: 'Prep | set debconf postrm_remove_databases'
+  ansible.builtin.debconf:
+    name: 'mariadb-server'
+    question: 'mariadb-server/postrm_remove_databases'
+    vtype: 'boolean'
+    value: '{{ maria_service_purge_enable | default(false) | string | lower }}'

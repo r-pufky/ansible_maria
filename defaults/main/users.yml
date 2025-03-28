@@ -9,13 +9,13 @@
 # Users are managed via MariaDB local root account.
 #
 # maria_users:
-#     list of dict - DB user definitions from community.mysql.mysql_users.
+#     list of dict - DB user definitions from community.mysql.mysql_user.
 #   - append_privs: bool - Append the privileges defined by priv to the
 #           existing ones for this user instead of overwriting existing ones.
 #           Mutually exclusive with subtract_privs.
 #         Default: omit.
 #     attributes: dict - Create, update, or delete user attributes (arbitrary
-#           ‘key: value’ comments) for the user. MySQL server must support the
+#           'key: value' comments) for the user. MySQL server must support the
 #           INFORMATION_SCHEMA.USER_ATTRIBUTES table. Provided since MySQL 8.0.
 #         Special Case:
 #           *: To delete an existing attribute, set its value to null.

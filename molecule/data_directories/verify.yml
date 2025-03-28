@@ -1,0 +1,163 @@
+---
+# yamllint disable rule:line-length
+- name: 'Default | verify database'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'Default | verify database | gather service status'
+      ansible.builtin.service_facts:
+
+    - name: 'Default | verify database | assert mariadb.service active'
+      ansible.builtin.assert:
+        that:
+          - '"mariadb.service" in ansible_facts.services'
+          - 'ansible_facts["services"]["mariadb.service"]["state"] == "running"'
+        fail_msg: 'mariadb.service should be enabled and running.'
+
+    - name: 'Default | verify database | query test1 user'
+      community.mysql.mysql_query:
+        login_db: 'mysql'
+        query: 'SELECT user FROM mysql.user WHERE user="test1" and host="%"'
+        login_unix_socket: '/run/mysqld/mysqld.sock'
+      register: _maria_query
+
+    - name: 'Default | verify database | assert test1 user created'
+      ansible.builtin.assert:
+        that: _maria_query.rowcount[0] == 1
+        fail_msg: 'test1@% should have been created.'
+
+    - name: 'Default | verify database | query test2 user'
+      community.mysql.mysql_query:
+        login_db: 'mysql'
+        query: 'SELECT user FROM mysql.user WHERE user="test2" and host="%"'
+        login_unix_socket: '/run/mysqld/mysqld.sock'
+      register: _maria_query
+
+    - name: 'Default | verify database | assert test2 user create'
+      ansible.builtin.assert:
+        that: _maria_query.rowcount[0] == 1
+        fail_msg: 'test2@% should have been created.'
+
+    - name: 'Default | verify database | query skeleton database'
+      community.mysql.mysql_query:
+        login_db: 'mysql'
+        query: 'SELECT schema_name FROM information_schema.schemata WHERE schema_name="skeleton"'
+        login_unix_socket: '/run/mysqld/mysqld.sock'
+      register: _maria_query
+
+    - name: 'Default | verify database | assert skeleton database create'
+      ansible.builtin.assert:
+        that: _maria_query.rowcount[0] == 1
+        fail_msg: 'skeleton database should have been created.'
+
+    - name: 'Default | verify database | query skeleton.default table'
+      community.mysql.mysql_query:
+        login_db: 'mysql'
+        query: 'SELECT * FROM information_schema.tables WHERE table_schema="skeleton" AND table_name="default"'
+        login_unix_socket: '/run/mysqld/mysqld.sock'
+      register: _maria_query
+
+    - name: 'Default | verify database | assert skeleton.default exists'
+      ansible.builtin.assert:
+        that: _maria_query.rowcount[0] == 1
+        fail_msg: >
+          skeleton.default table should exist
+          (skeleton.modified should not have been imported).
+
+    - name: 'Default | verify database | query empty database'
+      community.mysql.mysql_query:
+        login_db: 'mysql'
+        query: 'SELECT schema_name FROM information_schema.schemata WHERE schema_name="empty"'
+        login_unix_socket: '/run/mysqld/mysqld.sock'
+      register: _maria_query
+
+    - name: 'Default | verify database | assert empty database create'
+      ansible.builtin.assert:
+        that: _maria_query.rowcount[0] == 1
+        fail_msg: 'empty database should have been created.'
+
+- name: 'Default | verify config'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'Default | verify config | query mariadb.cnf'
+      ansible.builtin.copy:
+        src: 'files/mariadb.cnf'
+        dest: '/etc/mysql/mariadb.cnf'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      check_mode: true
+      diff: true
+      register: _test_maria_mariadb
+
+    - name: 'Default | verify config | assert mariadb.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_mariadb.changed
+        fail_msg: >
+          /etc/mysql/mariadb.cnf is not in expected format:
+          {{ _test_maria_mariadb.diff }}.
+
+    - name: 'Default | verify config | query 50-server.cnf'
+      ansible.builtin.copy:
+        src: 'files/50-server.cnf'
+        dest: '/etc/mysql/mariadb.conf.d/50-server.cnf'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      check_mode: true
+      diff: true
+      register: _test_maria_50_server
+
+    - name: 'Default | verify config | assert 50-server.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_50_server.changed
+        fail_msg: >
+          /etc/mysql/mariadb.conf.d/50-server.cnf is not in expected format:
+          {{ _test_maria_50_server.diff }}.
+
+    - name: 'Default | verify config | query 50-client.cnf'
+      ansible.builtin.stat:
+        path: '/etc/mysql/mariadb.conf.d/50-client.cnf'
+      register: _test_maria_50_client
+
+    - name: 'Default | verify config | assert 50-client.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_50_client.stat.exists
+        fail_msg: '/etc/mysql/mariadb.conf.d/50-client.cnf should be removed.'
+
+    - name: 'Default | verify config | query 50-mariadb-clients.cnf'
+      ansible.builtin.stat:
+        path: '/etc/mysql/mariadb.conf.d/50-mariadb-clients.cnf'
+      register: _test_maria_50_mariadb_clients
+
+    - name: 'Default | verify config | assert 50-mariadb-clients.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_50_mariadb_clients.stat.exists
+        fail_msg: '/etc/mysql/mariadb.conf.d/50-mariadb-clients.cnf should be removed.'
+
+    - name: 'Default | verify config | query 60-galera.cnf'
+      ansible.builtin.stat:
+        path: '/etc/mysql/mariadb.conf.d/60-galera.cnf'
+      register: _test_maria_60_galera
+
+    - name: 'Default | verify config | assert 60-galera.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_60_galera.stat.exists
+        fail_msg: '/etc/mysql/mariadb.conf.d/60-galera.cnf should be removed.'
+
+    - name: 'Default | verify config | query 90-extensions.cnf'
+      ansible.builtin.stat:
+        path: '/etc/mysql/mariadb.conf.d/90-extensions.cnf'
+      register: _test_maria_90_extensions
+
+    - name: 'Default | verify config | assert 90-extensions.cnf'
+      ansible.builtin.assert:
+        that:
+          - not _test_maria_90_extensions.stat.exists
+        fail_msg: '/etc/mysql/mariadb.conf.d/90-extensions.cnf should be removed.'
