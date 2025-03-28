@@ -4,14 +4,14 @@
 #
 set -e
 DATE_STAMP=`date +%Y-%m-%d`
-OWNER='{{ maria_databases_backup_owner | default("root") }}'
-GROUP='{{ maria_databases_backup_group | default("root") }}'
+OWNER='{{ maria_databases_backup_owner | default(maria_user) }}'
+GROUP='{{ maria_databases_backup_group | default(maria_group) }}'
 TARGET='{{ maria_databases_backup_dir | default("/var/lib/maria_backup") }}'
 OPTIONS='{{ maria_databases_backup_options | join(" ") }}'
 
 function dump_all () {
   DUMP="${TARGET}/all-databases-${DATE_STAMP}.sql"
-  /usr/bin/mariadb-dump -u root ${OPTIONS} --all-databases > "${DUMP}"
+  /usr/bin/mariadb-dump -u root -p ${OPTIONS} --all-databases > "${DUMP}"
   chown ${OWNER}:${GROUP} "${DUMP}"
   chmod o-rwx "${DUMP}"
   ln -sf "${DUMP}" "${TARGET}/all-databases-latest.sql"
@@ -22,7 +22,7 @@ function dump_all () {
 function dump_dbs () {
   /usr/bin/mariadb -N -e 'show databases' | while read db; do
     DUMP="${TARGET}/${db}-${DATE_STAMP}.sql"
-    /usr/bin/mariadb-dump -u root ${OPTIONS} "${db}" > "${DUMP}"
+    /usr/bin/mariadb-dump -u root -p ${OPTIONS} "${db}" > "${DUMP}"
     chown ${OWNER}:${GROUP} "${DUMP}"
     chmod o-rwx "${DUMP}"
     ln -sf "${DUMP}" "${TARGET}/${db}-latest.sql"

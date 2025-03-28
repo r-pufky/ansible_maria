@@ -62,7 +62,7 @@
 - name: 'Config | disable backups'
   when: not maria_databases_backup_enable
   block:
-    - name: 'Config | disable backups | set backup script'
+    - name: 'Config | disable backups | remove backup script'
       ansible.builtin.file:
         dest: '{{ maria_role_confd }}/maria_backup'
         state: 'absent'
