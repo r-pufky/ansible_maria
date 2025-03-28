@@ -176,8 +176,12 @@ maria_databases: []
 ###############################################################################
 # MariaDB Database Backups
 ###############################################################################
-# Backups are done through mariadb-dump and executed as root on a schedule.
-# Databases date stamped, linked to 'latest', removing 'other' permissions.
+# Backups are done through mariadb-dump and executed as root on a
+# schedule, Databases date stamped, linked to 'latest', removing 'other'
+# permissions.
+#
+# Systems with remote mount points restricting writes from local root user will
+# fail.
 #
 # All backups except 'latest' are compressed with tar.xz.
 #
