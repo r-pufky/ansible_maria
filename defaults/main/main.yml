@@ -50,9 +50,19 @@ maria_service_certs_path: ''
 # Default: '{RANDOM}' (idempotent based on hostname).
 maria_service_password: '{{ lookup("ansible.builtin.password", "/dev/null", chars=["ascii_lowercase", "ascii_uppercase", "digits"], length=32, seed=inventory_hostname) }}'
 
+# Purge maria data on package removal?
+#
+# DATA DESTRUCTIVE. Removes DB's, state, and config. Results in clean system
+# state on package removal via debconf maria-server/postrm_remove_databases.
+#
+# Default: False (Debian default).
+maria_service_purge_enable: false
+
 ###############################################################################
 # MariaDB User
 ###############################################################################
+# MariaDB is managed through root via unix socket connections. Root connection
+# information is written to /root/.my.cnf.
 
 # User that MariaDB will run under.
 #
@@ -74,3 +84,12 @@ maria_group: 'mysql'
 #
 # Default: True.
 maria_create_user: true
+
+# Manage data directories (datadir) as maria_user?
+#
+# Data locations may be mounted over network (with only maria user and
+# everything else mapping to nobody/nogroup). Execute commands touching those
+# root mount points as maria user to ensure they can be read or written.
+#
+# Default: False.
+maria_user_data_manage_enable: false

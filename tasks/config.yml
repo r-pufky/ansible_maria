@@ -3,10 +3,13 @@
 ###############################################################################
 # MariaDB Config
 ###############################################################################
-# Set backup script, backup service, and mariadb configs before starting
-# service.
+# Set database storage locations, backup script, backup service, and mariadb
+# configs before starting service.
 #
 # Service needs to be running to manage database and database users.
+#
+# Args:
+#   _maria_dbs: list of dict - server database configuration sections.
 
 - name: 'Config | enable backups'
   when: maria_databases_backup_enable
@@ -14,8 +17,8 @@
     - name: 'Config | enable backups | set backup directory'
       ansible.builtin.file:
         dest: '{{ maria_databases_backup_dir }}'
-        owner: 'root'
-        group: 'root'
+        owner: '{{ maria_user }}'
+        group: '{{ maria_group }}'
         mode: '0755'
         state: 'directory'
 
@@ -232,6 +235,14 @@
     path: '{{ maria_role_confd }}/90-extensions.cnf'
     state: 'absent'
   notify: 'Handlers | restart maria'
+
+- name: 'Config | initialize data directories'
+  ansible.builtin.include_tasks: 'initialize.yml'
+  vars:
+    db_config: '{{ item }}'
+  loop: '{{ _maria_dbs }}'
+  loop_control:
+    label: '{{ item.datadir | default("/var/lib/mysql") }}'
 
 - name: 'Config | start service'
   ansible.builtin.systemd:

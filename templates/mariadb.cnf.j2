@@ -8,7 +8,7 @@
 !includedir /etc/mysql/conf.d/
 {% endif %}
 {% if maria_mariadb_include_mariadb_confd_enable %}
-!includedir {{ maria_role_confd }}
+!includedir {{ maria_role_confd }}/
 {% endif %}
 {% if maria_encryption_enable %}
 [mariadb]

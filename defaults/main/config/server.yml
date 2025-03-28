@@ -8,6 +8,12 @@
 #
 # Read by standalone daemon and embedded servers.
 #
+# Special Case:
+#   datadir: Directory will automatically be created and permissions set using
+#            maria_user. The data directory will ONLY be initialized if a
+#            corresponding 'mysql' db does not exist (corrupt or incomplete
+#            data directories will cause service to fail).
+#
 # maria_server_server:
 #     dict - MariaDB server configuration section settings.
 #   {KEY}: str - Value.
@@ -27,6 +33,12 @@ maria_server_server: {}
 # [mariadb*] sections.
 #
 # This group is only read by MariaDB servers running the specified versions.
+#
+# Special Case:
+#   datadir: Directory will automatically be created and permissions set using
+#            maria_user. The data directory will ONLY be initialized if a
+#            corresponding 'mysql' db does not exist (corrupt or incomplete
+#            data directories will cause service to fail).
 #
 # maria_server_mariadb:
 #     list of dict - MariaDB daemon configuration versioned section settings.
@@ -50,7 +62,7 @@ maria_server_server: {}
 #
 # [maridbd]
 # pid_file=/run/mysqld/mysqld.pid
-# basedir=usr
+# basedir=/usr
 # bind_address=127.0.0.1
 # expire_logs_days=10
 #
@@ -73,6 +85,12 @@ maria_server_mariadb:
 # [embedded] section.
 #
 # Read by embedded server.
+#
+# Special Case:
+#   datadir: Directory will automatically be created and permissions set using
+#            maria_user. The data directory will ONLY be initialized if a
+#            corresponding 'mysql' db does not exist (corrupt or incomplete
+#            data directories will cause service to fail).
 #
 # maria_server_embedded:
 #     dict - MariaDB daemon configuration section settings.

@@ -2,9 +2,9 @@
 ###############################################################################
 # MariaDB Install
 ###############################################################################
-# Add role user, install required packages for utilities and MariaDB. Stop
-# service to apply service changes (service must have new settings loaded to
-# apply security, user, and database changes).
+# Add users, install required packages for utilities and MariaDB. Stop service
+# to apply service changes (service must have new settings loaded to apply
+# security, user, and database changes).
 #
 # Reference:
 # * https://downloads.mariadb.org/mariadb/repositories/
@@ -12,7 +12,7 @@
 # * https://computingforgeeks.com/how-to-install-mariadb-on-debian/
 # * https://github.com/geerlingguy/ansible-role-mysql
 
-- name: 'Install | manage users'
+- name: 'Prep | manage users'
   when: maria_create_user
   ansible.builtin.include_role:
     name: 'r_pufky.srv.users'

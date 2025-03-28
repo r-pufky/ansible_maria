@@ -1,0 +1,64 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Initialize Data Directories
+###############################################################################
+# Alternative data directory locations must be initialized before being used.
+#
+# Data locations may be mounted over network (with only maria user and
+# everything else mapping to nobody/nogroup). Execute commands touching those
+# root mount points as maria user to ensure they can be read or written.
+#
+# Data directories are created 'insecure' to set the same default state as
+# Debian installation. These are secured in the 'secure' step after config.
+#
+# Decision: init only empty directories - Data directories containing any
+#     information are not initialized to prevent plowing of existing user data.
+#     For certain conditions where a pre-existing partially initialized (or bad
+#     database) directory is used; the role will likely fail to start the
+#     service. This requires manual user intervention.
+#
+# Args:
+#   db_config: dict - server database configuration section.
+#
+# Reference:
+# * https://mariadb.com/kb/en/mysql_install_db/
+
+- name: 'Initialize | sanitize paths'
+  ansible.builtin.set_fact:
+    _maria_init_db_data_dir: '{{ db_config.datadir | default("/var/lib/mysql") }}'
+    _maria_init_db_base_dir: '{{ db_config.basedir | default("/usr") }}'
+
+- name: 'Initialize | manage {{ _maria_init_db_data_dir }}'
+  ansible.builtin.file:
+    path: '{{ _maria_init_db_data_dir }}'
+    owner: '{{ maria_user }}'
+    group: '{{ maria_group }}'
+    mode: '0755'
+    state: 'directory'
+  become: '{{ true if maria_user_data_manage_enable else omit }}'
+  become_user: '{{ maria_user if maria_user_data_manage_enable else omit }}'
+
+- name: 'Initialize | check data directory initialization'
+  ansible.builtin.stat:
+    path: '{{ _maria_init_db_data_dir }}/mysql'
+  become: '{{ true if maria_user_data_manage_enable else omit }}'
+  become_user: '{{ maria_user if maria_user_data_manage_enable else omit }}'
+  register: _maria_init_data
+
+# Run as maria_user to initialize with correct permissions.
+- name: 'Initialize | initialize'
+  when: not _maria_init_data.stat.exists
+  ansible.builtin.command:
+    argv:
+      - '/usr/bin/mariadb-install-db'
+      - '--basedir'
+      - '{{ _maria_init_db_base_dir }}'
+      - '--datadir'
+      - '{{ _maria_init_db_data_dir }}'
+      - '--skip-name-resolve'
+      - '--skip-test-db'
+  changed_when: "'already exists!' not in _maria_install_db.stdout"
+  register: _maria_install_db
+  become: true
+  become_user: '{{ maria_user }}'

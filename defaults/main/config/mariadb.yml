@@ -9,6 +9,12 @@
 # This group is read both by the client and the server use it for options that
 # affect everything. Setting should be in config/*.yml sections.
 #
+# Special Case:
+#   datadir: Directory will automatically be created and permissions set using
+#            maria_user. The data directory will ONLY be initialized if a
+#            corresponding 'mysql' db does not exist (corrupt or incomplete
+#            data directories will cause service to fail).
+#
 # maria_service_client_server:
 #     dict - MariaDB configuration section settings.
 #   {KEY}: str - Value.
@@ -22,12 +28,18 @@ maria_mariadb_client_server:
 #
 # Included after [client-server] before mariadb.conf.d.
 #
+# Special Case:
+#   datadir: Manage directory manually.
+#
 # Default: True.
 maria_mariadb_include_confd_enable: true
 
 # Enable include dir maria_role_confd?
 #
 # Must be enabled to use any config/*.yml options. Included at end of file.
+#
+# Special Case:
+#   datadir: Manage directory manually.
 #
 # Default: True.
 maria_mariadb_include_mariadb_confd_enable: true

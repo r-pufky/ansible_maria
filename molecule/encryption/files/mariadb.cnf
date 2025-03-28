@@ -1,7 +1,7 @@
 [client-server]
 socket=/run/mysqld/mysqld.sock
 !includedir /etc/mysql/conf.d/
-!includedir /etc/mysql/mariadb.conf.d
+!includedir /etc/mysql/mariadb.conf.d/
 [mariadb]
 plugin_load_add = file_key_management
 aria-encrypt-tables

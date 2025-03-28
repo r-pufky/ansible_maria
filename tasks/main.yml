@@ -1,4 +1,6 @@
 ---
+- name: 'Prep'
+  ansible.builtin.include_tasks: 'prep.yml'
 - name: 'Install'
   ansible.builtin.include_tasks: 'install.yml'
 - name: 'Config'
