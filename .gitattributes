@@ -1,2 +1,0 @@
-molecule/files/certs/** filter=lfs diff=lfs merge=lfs -text
-molecule/files/encryption/** filter=lfs diff=lfs merge=lfs -text

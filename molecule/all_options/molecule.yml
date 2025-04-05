@@ -20,7 +20,7 @@ provisioner:
     group_vars:
       all:
         maria_service_password: 'test'
-        maria_service_certs_path: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/certs'
+        maria_service_certs_path: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
         maria_client_only:
           connect_timeout: 30
         maria_settings_extensions:
@@ -68,7 +68,7 @@ scenario:
     - 'destroy'
     - 'syntax'
     - 'create'
-    # - 'prepare'
+    - 'prepare'
     - 'converge'
     # - 'idempotence'  # systemd services.
     # - 'side_effect'

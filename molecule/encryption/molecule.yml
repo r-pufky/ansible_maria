@@ -1,14 +1,5 @@
 ---
 # yamllint disable rule:line-length
-#
-# Generate test encryption keys with:
-#   echo -n "1;`openssl rand -hex 32`" > keyfile
-#   openssl rand -hex 128 > keyfile.key
-#   openssl enc -aes-256-cbc -md sha1 \
-#     -pass file:keyfile.key \
-#     -in keyfile \
-#     -out keyfile.enc
-#
 # Confirm:
 # * Encryption enabled and service is active and running.
 #
@@ -31,7 +22,7 @@ provisioner:
       all:
         maria_service_password: 'test'
         maria_encryption_enable: true
-        maria_encryption_path: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/encryption'
+        maria_encryption_path: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
         maria_encryption_settings:
           - 'aria-encrypt-tables'
           - 'encrypt-binlog'
@@ -70,7 +61,7 @@ scenario:
     - 'destroy'
     - 'syntax'
     - 'create'
-    # - 'prepare'
+    - 'prepare'
     - 'converge'
     # - 'idempotence'  # systemd services.
     # - 'side_effect'

@@ -1,0 +1,44 @@
+---
+# yamllint disable rule:line-length
+#
+# Generate test encryption keys with:
+#   echo -n "1;`openssl rand -hex 32`" > keyfile
+#   openssl rand -hex 128 > keyfile.key
+#   openssl enc -aes-256-cbc -md sha1 \
+#     -pass file:keyfile.key \
+#     -in keyfile \
+#     -out keyfile.enc
+#
+# Place in cache/keyfile*.
+#
+# Reference:
+# * https://mariadb.com/kb/en/file-key-management-encryption-plugin/
+- name: 'Encryption | prepare'
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: 'Encryption | prepare | generate cache location'
+      ansible.builtin.set_fact:
+        _test_cache: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
+
+    - name: 'Encryption | prepare | create cache'
+      ansible.builtin.file:
+        path: '{{ _test_cache }}'
+        mode: '0755'
+        state: 'directory'
+
+    - name: 'Encryption | prepare | generate test certificate'
+      ansible.builtin.shell: 'echo -n "1;$(openssl rand -hex 32)" > "{{ _test_cache }}/keyfile"'
+      args:
+        creates: '{{ _test_cache }}/keyfile'
+
+    - name: 'Encryption | prepare | sign test certificate'
+      ansible.builtin.shell: 'openssl rand -hex 128 > "{{ _test_cache }}/keyfile.key"'
+      args:
+        creates: '{{ _test_cache }}/keyfile.key'
+
+    - name: 'Encryption | prepare | pack PFX certificate'
+      ansible.builtin.command: 'openssl enc -aes-256-cbc -md sha1 -pass "file:{{ _test_cache }}/keyfile.key" -in "{{ _test_cache }}/keyfile" -out "{{ _test_cache }}/keyfile.enc"'
+      args:
+        creates: '{{ _test_cache }}/keyfile.enc'

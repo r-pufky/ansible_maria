@@ -128,10 +128,10 @@
           /etc/mysql/mariadb.conf.d/90-extensions.cnf is not in expected format:
           {{ _test_maria_90_extensions.diff }}.
 
-    - name: 'All options | verify | query test.cert'
+    - name: 'All options | verify | query server-cert.pem'
       ansible.builtin.copy:
-        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/certs/test.cert'
-        dest: '/etc/mysql/mariadb.conf.d/certs/test.cert'
+        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache/server-cert.pem'
+        dest: '/etc/mysql/mariadb.conf.d/certs/server-cert.pem'
         owner: 'root'
         group: 'root'
         mode: '0600'
@@ -139,10 +139,10 @@
       diff: true
       register: _test_maria_cert
 
-    - name: 'All options | verify | assert test.cert'
+    - name: 'All options | verify | assert server-cert.pem'
       ansible.builtin.assert:
         that:
           - not _test_maria_cert.changed
         fail_msg: >
-          /etc/mysql/mariadb.conf.d/certs/test.cert is not in expected format:
+          /etc/mysql/mariadb.conf.d/certs/server-cert.pem is not in expected format:
           {{ _test_maria_cert.diff }}.
