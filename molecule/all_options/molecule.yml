@@ -1,9 +1,13 @@
 ---
-# yamllint disable rule:line-length
+###############################################################################
+# All Options
+###############################################################################
+# Static syntax check all Maria options.
 #
-# Confirm:
+# Tests:
 # * Each option section is rendered correctly.
 # * mariadb_clients explicitly not tested as it is straight rendering.
+
 dependency:
   name: 'galaxy'
 driver:
@@ -20,7 +24,10 @@ provisioner:
     group_vars:
       all:
         maria_service_password: 'test'
-        maria_service_certs_path: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
+        maria_service_certs_path: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+            "/molecule/cache"
+          }}'
         maria_client_only:
           connect_timeout: 30
         maria_settings_extensions:

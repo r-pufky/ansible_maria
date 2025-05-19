@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # MariaDB Import DB
 ###############################################################################
@@ -18,8 +17,10 @@
 
 - name: 'Manage | DB | parse import options'
   ansible.builtin.set_fact:
-    _maria_db_import_enable: '{{ db.extensions.db_import.enable | default(false) }}'
-    _maria_db_import_source: '{{ db.extensions.db_import.source | default("") }}'
+    _maria_db_import_enable:
+      '{{ db.extensions.db_import.enable | default(false) }}'
+    _maria_db_import_source:
+      '{{ db.extensions.db_import.source | default("") }}'
 
 # When state=present, this will only ever create a database if it does not
 # exist (changed results) otherwise database will not be changed; safe to
@@ -34,7 +35,8 @@
     client_key: '{{ db.client_key | default(omit) }}'
     collation: '{{ db.collation | default("utf8_unicode_520_ci") }}'
     config_file: '{{ db.config_file | default("~/.my.cnf") }}'
-    config_overrides_defaults: '{{ db.config_overrides_defaults | default(false) }}'
+    config_overrides_defaults:
+      '{{ db.config_overrides_defaults | default(false) }}'
     connect_timeout: '{{ db.connect_timeout | default(30) }}'
     dump_extra_args: '{{ db.dump_extra_args | default(omit) }}'
     encoding: '{{ db.encoding | default("utf8") }}'
@@ -44,7 +46,8 @@
     login_host: '{{ db.login_host | default("localhost") }}'
     login_password: '{{ db.login_password | default(omit) }}'
     login_port: '{{ db.login_port | default(3306) }}'
-    login_unix_socket: '{{ db.login_unix_socket | default(maria_role_socket) }}'
+    login_unix_socket:
+      '{{ db.login_unix_socket | default(maria_role_socket) }}'
     login_user: '{{ db.login_user | default(omit) }}'
     master_data: '{{ db.master_data | default(0) }}'
     name: '{{ db.name }}'
@@ -83,8 +86,8 @@
         mode: '0600'
         force: true
 
-    - name: 'Manage | DB | import | {{ db.name }}'  # noqa no-handler import DB immediately.
-      community.mysql.mysql_db:
+    - name: 'Manage | DB | import | {{ db.name }}'
+      community.mysql.mysql_db:  # noqa no-handler import DB immediately.
         ca_cert: '{{ db.ca_cert | default(omit) }}'
         chdir: '{{ db.chdir | default(omit) }}'
         check_hostname: '{{ db.check_hostname | default(omit) }}'
@@ -93,7 +96,8 @@
         client_key: '{{ db.client_key | default(omit) }}'
         collation: '{{ db.collation | default("utf8_unicode_520_ci") }}'
         config_file: '{{ db.config_file | default("~/.my.cnf") }}'
-        config_overrides_defaults: '{{ db.config_overrides_defaults | default(false) }}'
+        config_overrides_defaults:
+          '{{ db.config_overrides_defaults | default(false) }}'
         connect_timeout: '{{ db.connect_timeout | default(30) }}'
         dump_extra_args: '{{ db.dump_extra_args | default(omit) }}'
         encoding: '{{ db.encoding | default("utf8") }}'
@@ -103,7 +107,8 @@
         login_host: '{{ db.login_host | default("localhost") }}'
         login_password: '{{ db.login_password | default(omit) }}'
         login_port: '{{ db.login_port | default(3306) }}'
-        login_unix_socket: '{{ db.login_unix_socket | default(maria_role_socket) }}'
+        login_unix_socket:
+          '{{ db.login_unix_socket | default(maria_role_socket) }}'
         login_user: '{{ db.login_user | default(omit) }}'
         master_data: '{{ db.master_data | default(0) }}'
         name: '{{ db.name }}'
@@ -114,7 +119,8 @@
         skip_lock_tables: '{{ db.skip_lock_tables | default(false) }}'
         state: 'import'
         target: '/tmp/maria_db_import.sql'
-        unsafe_login_password: '{{ db.unsafe_login_password | default(false) }}'
+        unsafe_login_password:
+          '{{ db.unsafe_login_password | default(false) }}'
         use_shell: '{{ db.use_shell | default(false) }}'
   always:
     - name: 'Manage | DB | import | remove staged files'

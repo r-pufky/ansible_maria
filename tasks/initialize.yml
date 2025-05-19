@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Initialize Data Directories
 ###############################################################################
@@ -26,7 +25,8 @@
 
 - name: 'Initialize | sanitize paths'
   ansible.builtin.set_fact:
-    _maria_init_db_data_dir: '{{ db_config.datadir | default("/var/lib/mysql") }}'
+    _maria_init_db_data_dir:
+      '{{ db_config.datadir | default("/var/lib/mysql") }}'
     _maria_init_db_base_dir: '{{ db_config.basedir | default("/usr") }}'
 
 - name: 'Initialize | manage {{ _maria_init_db_data_dir }}'

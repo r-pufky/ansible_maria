@@ -28,6 +28,7 @@
 #
 # Reference:
 # * https://mariadb.com/kb/en/file-key-management-encryption-plugin/
+# yamllint enable rule:line-length
 
 # Enable data at rest encryption?
 #

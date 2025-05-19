@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 - name: 'Auto backup | prepare'
   hosts: 'all'
   gather_facts: false
@@ -14,7 +13,10 @@
 
     - name: 'Auto backup | prepare | set auto backup'
       ansible.builtin.template:
-        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/backup.sql'
+        src: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+            "/molecule/files/backup.sql"
+          }}'
         dest: '/var/lib/maria_backup/skeleton.sql'
         owner: 'root'
         group: 'root'

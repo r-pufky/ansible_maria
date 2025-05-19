@@ -21,6 +21,7 @@
 # * https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_query_module.html#notes
 # * https://mariadb.com/kb/en/mariadb-secure-installation/
 # * https://www.digitalocean.com/community/tutorials/how-to-reset-your-mysql-or-mariadb-root-password
+# yamllint enable rule:line-length
 
 - name: 'Secure | set root password'
   community.mysql.mysql_user:
@@ -47,7 +48,7 @@
 # remove_remote_root()
 - name: 'Secure | delete remote root users'
   community.mysql.mysql_query:
-    query: "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
+    query: "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"  # yamllint disable-line rule:line-length
     login_db: 'mysql'
     login_unix_socket: '{{ maria_role_socket }}'
 
@@ -78,9 +79,9 @@
     login_db: 'mysql'
     login_unix_socket: '{{ maria_role_socket }}'
 
-- name: 'Secure | SECURITY NOTIFICATION'
+- name: 'Secure | SECURITY NOTIFICATION ⚠'
   ansible.builtin.debug:
     msg: |
-      Installation secured. May manually re-run with:
+      ⚠ Installation secured. May manually re-run with:
 
         /usr/bin/mariadb-secure-installation

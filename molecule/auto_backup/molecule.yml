@@ -1,7 +1,13 @@
 ---
-# Confirm:
+###############################################################################
+# Auto Backup
+###############################################################################
+# Databases are correctly imported using auto backup archives.
+#
+# Tests:
 # * Database creation and import from auto-backup works.
 # * Enabling, then disabling auto-backup removes expected files.
+
 dependency:
   name: 'galaxy'
 driver:

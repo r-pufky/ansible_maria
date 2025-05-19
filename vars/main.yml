@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # MariaDB Role Options
 ###############################################################################
@@ -29,7 +28,11 @@ maria_role_apt_sources:
   - name: 'mariadb'
     types:
       - 'deb'
-    uris: 'https://deb.mariadb.org/{{ maria_service_version | default("11.rolling") }}/debian'
+    uris: '{{
+        "https://deb.mariadb.org/" ~
+        maria_service_version | default("11.rolling") ~
+        "/debian"
+      }}'
     suites:
       - 'bookworm'
     components:

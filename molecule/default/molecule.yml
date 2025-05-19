@@ -1,6 +1,10 @@
 ---
-# yamllint disable rule:line-length
-# Confirm:
+###############################################################################
+# Default
+###############################################################################
+# Imported Maria database with users is created successfully.
+#
+# Tests:
 # * mariadb is active and running.
 # * Users test1, test2 created.
 # * Database skeleton_default created with skeleton_default.sql ansible
@@ -8,6 +12,7 @@
 # * Database skeleton_default is not overwritten with skeleton_modified.sql
 #   ansible import.
 # * Database empty is created.
+
 dependency:
   name: 'galaxy'
 driver:
@@ -39,7 +44,10 @@ provisioner:
             extensions:
               db_import:
                 enable: true
-                source: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/skeleton_default.sql'
+                source: '{{
+                    lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+                    "/molecule/files/skeleton_default.sql"
+                  }}'
           - name: 'skeleton'
             collation: 'utf8_unicode_520_ci'
             encoding: 'latin1'
@@ -48,7 +56,10 @@ provisioner:
             extensions:
               db_import:
                 enable: true
-                source: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/skeleton_modified.sql'
+                source: '{{
+                    lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+                    "/molecule/files/skeleton_modified.sql"
+                  }}'
           - name: 'empty'
             collation: 'utf8_unicode_520_ci'
             encoding: 'utf8'

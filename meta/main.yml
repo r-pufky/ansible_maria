@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  role_name: 'maria'
   author: 'r_pufky'
   description: 'MariaDB (MySql) Servers'
   company: 'N/A'

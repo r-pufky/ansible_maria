@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Manage MariaDB
 ###############################################################################
@@ -33,12 +32,14 @@
     login_host: '{{ item.login_host | default("localhost") }}'
     login_password: '{{ item.login_password | default(omit) }}'
     login_port: '{{ item.login_port | default(3306) }}'
-    login_unix_socket: '{{ item.login_unix_socket | default(maria_role_socket) }}'
+    login_unix_socket:
+      '{{ item.login_unix_socket | default(maria_role_socket) }}'
     login_user: '{{ item.login_user | default(omit) }}'
     name: '{{ item.name }}'
     password: '{{ item.password | default(omit) }}'
     password_expire: '{{ item.password_expire | default(omit) }}'
-    password_expire_interval: '{{ item.password_expire_interval | default(omit) }}'
+    password_expire_interval:
+      '{{ item.password_expire_interval | default(omit) }}'
     plugin: '{{ item.plugin | default(omit) }}'
     plugin_auth_string: '{{ item.plugin_auth_string | default(omit) }}'
     plugin_hash_string: '{{ item.plugin_hash_string | default(omit) }}'

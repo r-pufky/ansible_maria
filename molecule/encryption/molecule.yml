@@ -1,10 +1,15 @@
 ---
-# yamllint disable rule:line-length
-# Confirm:
+###############################################################################
+# Encryption
+###############################################################################
+# Enabling encryption applies settings correctly.
+#
+# Tests:
 # * Encryption enabled and service is active and running.
 #
 # Reference:
 # * https://mariadb.com/kb/en/file-key-management-encryption-plugin/
+
 dependency:
   name: 'galaxy'
 driver:
@@ -22,7 +27,10 @@ provisioner:
       all:
         maria_service_password: 'test'
         maria_encryption_enable: true
-        maria_encryption_path: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
+        maria_encryption_path: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+            "/molecule/cache"
+          }}'
         maria_encryption_settings:
           - 'aria-encrypt-tables'
           - 'encrypt-binlog'
@@ -37,8 +45,10 @@ provisioner:
               basedir: '/usr'
               bind_address: '127.0.0.1'
               expire_logs_days: 10
-              file_key_management_filename: '/etc/mysql/mariadb.conf.d/encryption/keyfile.enc'
-              file_key_management_filekey: 'FILE:/etc/mysql/mariadb.conf.d/encryption/keyfile.key'
+              file_key_management_filename:
+                '/etc/mysql/mariadb.conf.d/encryption/keyfile.enc'
+              file_key_management_filekey:
+                'FILE:/etc/mysql/mariadb.conf.d/encryption/keyfile.key'
               file_key_management_encryption_algorithm: 'AES_CTR'
 platforms:
   - name: 'maria-debian-12-encryption'

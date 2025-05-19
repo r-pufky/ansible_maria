@@ -1,7 +1,12 @@
 ---
-# yamllint disable rule:line-length
-# Confirm:
+###############################################################################
+# Data Directories
+###############################################################################
+# Alternate data locations do not cause role failure.
+#
+# Tests:
 # * Alternative data directory locations are started correctly.
+
 dependency:
   name: 'galaxy'
 driver:
@@ -40,7 +45,10 @@ provisioner:
             extensions:
               db_import:
                 enable: true
-                source: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/skeleton_default.sql'
+                source: '{{
+                    lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+                    "/molecule/files/skeleton_default.sql"
+                  }}'
           - name: 'skeleton'
             collation: 'utf8_unicode_520_ci'
             encoding: 'latin1'
@@ -49,7 +57,10 @@ provisioner:
             extensions:
               db_import:
                 enable: true
-                source: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/skeleton_modified.sql'
+                source: '{{
+                    lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+                    "/molecule/files/skeleton_modified.sql"
+                  }}'
           - name: 'empty'
             collation: 'utf8_unicode_520_ci'
             encoding: 'utf8'

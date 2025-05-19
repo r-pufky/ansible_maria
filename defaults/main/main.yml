@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # MariaDB Role Configuration
 ###############################################################################
@@ -48,7 +47,13 @@ maria_service_certs_path: ''
 # Generated password is predictable and should ALWAYS be changed.
 #
 # Default: '{RANDOM}' (idempotent based on hostname).
-maria_service_password: '{{ lookup("ansible.builtin.password", "/dev/null", chars=["ascii_lowercase", "ascii_uppercase", "digits"], length=32, seed=inventory_hostname) }}'
+maria_service_password: '{{
+    lookup("ansible.builtin.password",
+           "/dev/null",
+           chars=["ascii_lowercase", "ascii_uppercase", "digits"],
+           length=32,
+           seed=inventory_hostname)
+  }}'
 
 # Purge maria data on package removal?
 #
@@ -80,7 +85,7 @@ maria_group: 'mysql'
 
 # Create maria_user, maria_group if not detected?
 #
-# Applied via r_pufky.srv.users, see vars/main.yml for default user attributes.
+# Applied via r_pufky.deb.users, see vars/main.yml for default user attributes.
 #
 # Default: True.
 maria_create_user: true

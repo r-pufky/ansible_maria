@@ -1,17 +1,36 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Ports Configuration
 ###############################################################################
-# Manage firewall with r_pufky.srv.ufw.
+# Manage firewall with r_pufky.deb.ufw.
 #
 # Reference:
 # * https://github.com/r-pufky/ansible_ufw
 # * https://galeracluster.com/library/documentation/firewall-settings.html
 
 maria_ports:
-  - {proto: 'tcp', from_ip: 'any', to_port: 3306, direction: 'in', comment: 'mysql service'}
-  - {proto: 'tcp', from_ip: 'any', to_port: 4567, direction: 'in', comment: 'galera cluster replication'}
-  - {proto: 'udp', from_ip: 'any', to_port: 4567, direction: 'in', comment: 'galera cluster replication'}
-  - {proto: 'tcp', from_ip: 'any', to_port: 4568, direction: 'in', comment: 'galera incremental state transfer (IST)'}
-  - {proto: 'tcp', from_ip: 'any', to_port: 4444, direction: 'in', comment: 'galera state snapshot transfer (SST)'}
+  - proto: 'tcp'
+    from_ip: 'any'
+    to_port: 3306
+    direction: 'in'
+    comment: 'mysql service'
+  - proto: 'tcp'
+    from_ip: 'any'
+    to_port: 4567
+    direction: 'in'
+    comment: 'galera cluster replication'
+  - proto: 'udp'
+    from_ip: 'any'
+    to_port: 4567
+    direction: 'in'
+    comment: 'galera cluster replication'
+  - proto: 'tcp'
+    from_ip: 'any'
+    to_port: 4568
+    direction: 'in'
+    comment: 'galera incremental state transfer (IST)'
+  - proto: 'tcp'
+    from_ip: 'any'
+    to_port: 4444
+    direction: 'in'
+    comment: 'galera state snapshot transfer (SST)'

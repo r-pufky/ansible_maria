@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # MariaDB Config
 ###############################################################################
@@ -10,17 +9,23 @@
 #
 # Args:
 #   _maria_dbs: list of dict - server database configuration sections.
+#   _maria_uid: int - Maria user UID.
+#   _maria_gid: int - Maria user GID.
 
 - name: 'Config | enable backups'
   when: maria_databases_backup_enable
   block:
     - name: 'Config | enable backups | set backup directory'
-      ansible.builtin.file:
-        dest: '{{ maria_databases_backup_dir }}'
-        owner: '{{ maria_user }}'
-        group: '{{ maria_group }}'
-        mode: '0755'
-        state: 'directory'
+      ansible.builtin.include_role:
+        name: 'r_pufky.lib.utils'
+        tasks_from: 'remote_file.yml'
+      vars:
+        file_path: '{{ maria_databases_backup_dir }}'
+        file_owner: '{{ _maria_uid }}'
+        file_group: '{{ _maria_gid }}'
+        file_mode: '0755'
+        file_recurse: false
+        file_state: 'directory'
 
     - name: 'Config | enable backups | set backup script'
       ansible.builtin.template:
@@ -32,7 +37,7 @@
 
     - name: 'Config | enable backups | create backup service'
       ansible.builtin.include_role:
-        name: 'r_pufky.srv.systemd'
+        name: 'r_pufky.deb.systemd'
       vars:
         systemd_services:
           - name: 'maria_backup'
@@ -69,7 +74,7 @@
 
     - name: 'Config | disable backups | remove backup service'
       ansible.builtin.include_role:
-        name: 'r_pufky.srv.systemd'
+        name: 'r_pufky.deb.systemd'
       vars:
         systemd_services:
           - name: 'maria_backup'
@@ -83,7 +88,11 @@
 - name: 'Config | set mariadb certs'
   when: maria_service_certs_path | length > 0
   ansible.builtin.copy:
-    src: '{{ maria_service_certs_path if maria_service_certs_path.endswith("/") else maria_service_certs_path ~ "/" }}'
+    src: '{{
+        maria_service_certs_path
+        if maria_service_certs_path.endswith("/") else
+        maria_service_certs_path ~ "/"
+      }}'
     dest: '{{ maria_role_confd }}/certs/'
     owner: 'root'
     group: 'root'
@@ -100,7 +109,11 @@
 - name: 'Config | set encryption files'
   when: maria_encryption_path | length > 0
   ansible.builtin.copy:
-    src: '{{ maria_encryption_path if maria_encryption_path.endswith("/") else maria_encryption_path ~ "/" }}'
+    src: '{{
+        maria_encryption_path
+        if maria_encryption_path.endswith("/") else
+        maria_encryption_path ~ "/"
+      }}'
     dest: '{{ maria_role_confd }}/encryption/'
     owner: 'root'
     group: 'root'

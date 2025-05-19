@@ -1,5 +1,8 @@
 ---
 # yamllint disable rule:line-length
+###############################################################################
+# Prepare
+###############################################################################
 # Testing requires a valid certificate. Generate a test certificate signed by
 # a test CA.
 #
@@ -7,6 +10,7 @@
 # * https://mariadb.com/kb/en/certificate-creation-with-openssl/
 # * https://gist.github.com/rquackenbush/53ff432567699b21c86f3360fb4ec7f0
 # * https://superuser.com/questions/226192/avoid-password-prompt-for-keys-and-prompts-for-dn-information
+# yamllint enable rule:line-length
 
 - name: 'All options | prepare'
   hosts: 127.0.0.1
@@ -15,30 +19,75 @@
   tasks:
     - name: 'All options | prepare | generate cache location'
       ansible.builtin.set_fact:
-        _test_cache: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
+        _test_cache:
+          '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
 
-    - name: 'All options | prepare | create cache'
-      ansible.builtin.file:
-        path: '{{ _test_cache }}'
-        mode: '0755'
-        state: 'directory'
+    - name: All options | prepare | create cache'
+      ansible.builtin.include_role:
+        name: 'r_pufky.lib.tests'
+        tasks_from: 'create_cache.yml'
+      vars:
+        test_name: All options | prepare | create cache'
 
     - name: 'All options | prepare | generate test CA private key'
-      ansible.builtin.shell: 'openssl genrsa 2048 > "{{ _test_cache }}/ca-key.pem"'
+      ansible.builtin.shell:
+        'openssl genrsa 2048 > "{{ _test_cache }}/ca-key.pem"'
       args:
         creates: '{{ _test_cache }}/ca-key.pem'
 
     - name: 'All options | prepare | generate test CA certificate'
-      ansible.builtin.command: 'openssl req -new -x509 -days 365000 -nodes -subj "/C=US/ST=NY/L=NY/O=test/CN=test.example.com" -key "{{ _test_cache }}/ca-key.pem" -out "{{ _test_cache }}/ca.pem"'
-      args:
+      ansible.builtin.command:
+        argv:
+          - 'openssl'
+          - 'req'
+          - '-new'
+          - '-x509'
+          - '-days'
+          - '365000'
+          - '-nodes'
+          - '-subj'
+          - '/C=US/ST=NY/L=NY/O=test/CN=test.example.com'
+          - '-key'
+          - '{{ _test_cache }}/ca-key.pem'
+          - '-out'
+          - '{{ _test_cache }}/ca.pem'
         creates: '{{ _test_cache }}/ca.pem'
 
     - name: 'All options | prepare | generate test client certificate request'
-      ansible.builtin.command: 'openssl req -new -newkey rsa:2048 -days 365000 -nodes -subj "/C=US/ST=NY/L=NY/O=test/CN=test.example.com" -keyout "{{ _test_cache }}/server-key.pem" -out "{{ _test_cache }}/server-req.pem"'
-      args:
+      ansible.builtin.command:
+        argv:
+          - 'openssl'
+          - 'req'
+          - '-new'
+          - '-newkey'
+          - 'rsa:2048'
+          - '-days'
+          - '365000'
+          - '-nodes'
+          - '-subj'
+          - '/C=US/ST=NY/L=NY/O=test/CN=test.example.com'
+          - '-keyout'
+          - '{{ _test_cache }}/server-key.pem'
+          - '-out'
+          - '{{ _test_cache }}/server-req.pem'
         creates: '{{ _test_cache }}/server-req.pem'
 
     - name: 'All options | prepare | sign test certificate'
-      ansible.builtin.command: 'openssl x509 -req -in "{{ _test_cache }}/server-req.pem" -days 365000 -CA "{{ _test_cache }}/ca.pem" -CAkey "{{ _test_cache }}/ca-key.pem" -set_serial 01 -out "{{ _test_cache }}/server-cert.pem"'
-      args:
+      ansible.builtin.command:
+        argv:
+          - 'openssl'
+          - 'x509'
+          - '-req'
+          - '-in'
+          - '{{ _test_cache }}/server-req.pem'
+          - '-days'
+          - '365000'
+          - '-CA'
+          - '{{ _test_cache }}/ca.pem'
+          - '-CAkey'
+          - '{{ _test_cache }}/ca-key.pem'
+          - '-set_serial'
+          - '01'
+          - '-out'
+          - '{{ _test_cache }}/server-cert.pem'
         creates: '{{ _test_cache }}/server-cert.pem'
