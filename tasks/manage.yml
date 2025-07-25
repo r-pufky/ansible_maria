@@ -8,7 +8,7 @@
 
 - name: 'Manage | DB'
   ansible.builtin.include_tasks: 'manage_db.yml'
-  loop: '{{ maria_databases }}'
+  loop: '{{ _maria_cfg_databases.raw }}'
   loop_control:
     loop_var: 'db'
     label: '{{ db.name }}'
@@ -52,6 +52,6 @@
     subtract_privs: '{{ item.subtract_privs | default(omit) }}'
     tls_requires: '{{ item.tls_requires | default(omit) }}'
     update_password: '{{ item.update_password | default("always") }}'
-  loop: '{{ maria_users }}'
+  loop: '{{ _maria_cfg_users.raw }}'
   loop_control:
     label: '{{ item.name }}'

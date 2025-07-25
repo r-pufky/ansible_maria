@@ -23,14 +23,14 @@ maria-secure-installation is always run.
 ### Setup MariaDB, create user, create database, enable backups.
 host_vars/db.example.com/vars/maria.yml
 ``` yaml
-maria_service_password: '{{ vault_local_root_password }}'
-maria_databases_backups_enable: true
-maria_users:
+maria_srv_password: '{{ vault_local_root_password }}'
+maria_cfg_databases_backups_enable: true
+maria_cfg_users:
   - name: 'test1'
     host: '%'
     priv: '*.*:ALL'
     password: '{{ vault_db_test_password }}'
-maria_databases:
+maria_cfg_databases:
   - name: 'skeleton'
     collation: 'utf8_unicode_520_ci'
     encoding: 'utf8'
@@ -52,13 +52,13 @@ Re-import will require manual database deletion.
 
 host_vars/db.example.com/vars/maria.yml
 ``` yaml
-maria_service_password: '{{ vault_local_root_password }}'
-maria_users:
+maria_srv_password: '{{ vault_local_root_password }}'
+maria_cfg_users:
   - name: 'test1'
     host: '%'
     priv: '*.*:ALL'
     password: '{{ vault_db_test_password }}'
-maria_databases:
+maria_cfg_databases:
   - name: 'skeleton'
     collation: 'utf8_unicode_520_ci'
     encoding: 'utf8'
@@ -85,10 +85,10 @@ additional examples.
 
 host_vars/db.example.com/vars/maria.yml
 ``` yaml
-maria_service_password: '{{ vault_local_root_password }}'
-maria_encryption_enable: true
-maria_encryption_path: 'host_vars/db.example.com/files/encryption'
-maria_server_mariadb:
+maria_srv_password: '{{ vault_local_root_password }}'
+maria_cfg_encryption_enable: true
+maria_cfg_encryption_path: 'host_vars/db.example.com/files/encryption'
+maria_cfg_server_mariadb:
   - version: 'all'
     config:
       pid_file: '/run/mysqld/mysqld.pid'
@@ -98,12 +98,12 @@ maria_server_mariadb:
       file_key_management_filename: '/etc/mysql/mariadb.conf.d/encryption/keyfile.enc'
       file_key_management_filekey: 'FILE:/etc/mysql/mariadb.conf.d/encryption/keyfile.key'
       file_key_management_encryption_algorithm: 'AES_CTR'
-maria_users:
+maria_cfg_users:
   - name: 'test1'
     host: '%'
     priv: '*.*:ALL'
     password: '{{ vault_db_test_password }}'
-maria_databases:
+maria_cfg_databases:
   - name: 'skeleton'
     collation: 'utf8_unicode_520_ci'
     encoding: 'utf8'

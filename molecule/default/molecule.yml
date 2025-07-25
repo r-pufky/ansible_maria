@@ -12,6 +12,7 @@
 # * Database skeleton_default is not overwritten with skeleton_modified.sql
 #   ansible import.
 # * Database empty is created.
+# * Alternative data storage user succeeds.
 
 dependency:
   name: 'galaxy'
@@ -28,15 +29,15 @@ provisioner:
   inventory:
     group_vars:
       all:
-        maria_service_password: 'test'
-        maria_users:
+        maria_srv_password: 'test'
+        maria_cfg_users:
           - name: 'test1'
             host: '%'
             password: 'test'
           - name: 'test2'
             host: '%'
             password: 'test'
-        maria_databases:
+        maria_cfg_databases:
           - name: 'skeleton'
             collation: 'utf8_unicode_520_ci'
             encoding: 'utf8'
@@ -64,8 +65,19 @@ provisioner:
             collation: 'utf8_unicode_520_ci'
             encoding: 'utf8'
             state: 'present'
+    host_vars:
+      maria-debian-12-user_data:
+        maria_srv_user_data_manage_enable: true
+        maria_cfg_databases_backup_dir: '/srv/backup'
 platforms:
   - name: 'maria-debian-12-default'
+    image: 'ghcr.io/hifis-net/debian-systemd:12'
+    systemd: 'always'
+    volumes:
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    command: '/lib/systemd/systemd'
+    pre_build_image: true
+  - name: 'maria-debian-12-user_data'
     image: 'ghcr.io/hifis-net/debian-systemd:12'
     systemd: 'always'
     volumes:
@@ -85,7 +97,7 @@ scenario:
     - 'destroy'
     - 'syntax'
     - 'create'
-    # - 'prepare'
+    - 'prepare'
     - 'converge'
     # - 'idempotence'  # systemd services.
     # - 'side_effect'

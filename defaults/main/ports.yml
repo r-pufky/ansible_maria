@@ -8,7 +8,7 @@
 # * https://github.com/r-pufky/ansible_ufw
 # * https://galeracluster.com/library/documentation/firewall-settings.html
 
-maria_ports:
+maria_srv_ports:
   - proto: 'tcp'
     from_ip: 'any'
     to_port: 3306

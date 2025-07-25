@@ -6,13 +6,13 @@
 # [client] section.
 #
 # Read by the client library. Use it for options that affect all clients, but
-# not the server. See maria_service_certs_path for managing certificates.
+# not the server. See maria_srv_certs_path for managing certificates.
 #
-# maria_client_all:
+# maria_cfg_client_all:
 #     dict - MariaDB/MySQL client configuration section settings.
 #   {KEY}: str - Value.
 #
-# maria_client_all:
+# maria_cfg_client_all:
 #   ssl-cert: '/etc/mysql/client-cert.pem'
 #   ssl-key: '/etc/mysql/client-key.pem'
 #   ssl-verify-server-cert: 'on'
@@ -21,19 +21,19 @@
 #
 # Reference:
 # * https://mariadb.com/kb/en/server-system-variables/
-maria_client_all: {}
+maria_cfg_client_all: {}
 
 # [client-mariadb] section.
 #
 # Read by the mariadb client library. Use it for options that affect mariadb
-# clients, but not the server. See maria_service_certs_path for managing
+# clients, but not the server. See maria_srv_certs_path for managing
 # certificates.
 #
-# maria_client_only:
+# maria_cfg_client_only:
 #     dict - MariaDB client configuration section settings.
 #   {KEY}: str - Value.
 #
-# maria_client_only:
+# maria_cfg_client_only:
 #   ssl-cert: '/etc/mysql/client-cert.pem'
 #   ssl-key: '/etc/mysql/client-key.pem'
 #   ssl-verify-server-cert: 'on'
@@ -42,4 +42,4 @@ maria_client_all: {}
 #
 # Reference:
 # * https://mariadb.com/kb/en/server-system-variables/
-maria_client_only: {}
+maria_cfg_client_only: {}

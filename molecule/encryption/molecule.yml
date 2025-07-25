@@ -25,20 +25,20 @@ provisioner:
   inventory:
     group_vars:
       all:
-        maria_service_password: 'test'
-        maria_encryption_enable: true
-        maria_encryption_path: '{{
+        maria_srv_password: 'test'
+        maria_cfg_encryption_enable: true
+        maria_cfg_encryption_path: '{{
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
             "/molecule/cache"
           }}'
-        maria_encryption_settings:
+        maria_cfg_encryption_settings:
           - 'aria-encrypt-tables'
           - 'encrypt-binlog'
           - 'encrypt-tmp-disk-tables'
           - 'encrypt-tmp-files'
           - 'loose-innodb-encrypt-log'
           - 'loose-innodb-encrypt-tables'
-        maria_server_mariadb:
+        maria_cfg_server_mariadb:
           - version: 'all'
             config:
               pid_file: '/run/mysqld/mysqld.pid'

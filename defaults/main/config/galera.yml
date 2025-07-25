@@ -9,11 +9,11 @@
 
 # Galera settings.
 #
-# maria_galera_config:
+# maria_cfg_galera_config:
 #     dict - Galera configuration section settings.
 #   {KEY}: str - Value.
 #
-# maria_galera_config:
+# maria_cfg_galera_config:
 #   wsrep_on: 1
 #   wsrep_cluster_name: 'MariaDB Galera Cluster'
 #   wsrep_cluster_address: 'gcomm://'
@@ -22,4 +22,4 @@
 #
 # Reference:
 # * https://mariadb.com/kb/en/galera-cluster-system-variables/
-maria_galera_config: {}
+maria_cfg_galera_config: {}

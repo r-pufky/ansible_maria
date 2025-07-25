@@ -1,21 +1,21 @@
-{% if maria_mariadb_client_server is defined and maria_mariadb_client_server | length > 0 %}
+{% if _maria_cfg_mariadb_client_server.raw | length > 0 %}
 [client-server]
-{% for key, value in maria_mariadb_client_server.items() %}
+{%   for key, value in _maria_cfg_mariadb_client_server.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_mariadb_include_confd_enable %}
-!includedir /etc/mysql/conf.d/
+{% if _maria_cfg_mariadb_include_confd_enable.raw %}
+{{ _maria_cfg_mariadb_include_confd_enable.role }}
 {% endif %}
-{% if maria_mariadb_include_mariadb_confd_enable %}
-!includedir {{ maria_role_confd }}/
+{% if _maria_cfg_mariadb_include_mariadb_confd_enable.raw %}
+{{ _maria_cfg_mariadb_include_mariadb_confd_enable.role }}
 {% endif %}
-{% if maria_encryption_enable %}
+{% if _maria_cfg_encryption_enable.raw %}
 [mariadb]
 plugin_load_add = file_key_management
-{% if maria_encryption_settings | length > 0 %}
-{% for setting in maria_encryption_settings %}
+{%   if _maria_cfg_encryption_settings.raw | length > 0 %}
+{%     for setting in _maria_cfg_encryption_settings.raw %}
 {{ setting }}
-{% endfor %}
-{% endif %}
+{%     endfor %}
+{%   endif %}
 {% endif %}

@@ -2,7 +2,7 @@
 ###############################################################################
 # MariaDB Server ({{ maria_role_confd }}/50-server.cnf)
 ###############################################################################
-# See maria_service_certs_path for managing certificates.
+# See maria_srv_certs_path for managing certificates.
 
 # [server] section.
 #
@@ -10,15 +10,15 @@
 #
 # Special Case:
 #   datadir: Directory will automatically be created and permissions set using
-#            maria_user. The data directory will ONLY be initialized if a
+#            maria_srv_user. The data directory will ONLY be initialized if a
 #            corresponding 'mysql' db does not exist (corrupt or incomplete
 #            data directories will cause service to fail).
 #
-# maria_server_server:
+# maria_cfg_server_server:
 #     dict - MariaDB server configuration section settings.
 #   {KEY}: str - Value.
 #
-# maria_server_server:
+# maria_cfg_server_server:
 #   datadir: '/var/lib/mysql'
 #   tmpdir: '/tmp'
 #   lc_messages: 'en_US'
@@ -28,7 +28,7 @@
 #
 # Reference:
 # * https://mariadb.com/kb/en/server-system-variables/
-maria_server_server: {}
+maria_cfg_server_server: {}
 
 # [mariadb*] sections.
 #
@@ -36,11 +36,11 @@ maria_server_server: {}
 #
 # Special Case:
 #   datadir: Directory will automatically be created and permissions set using
-#            maria_user. The data directory will ONLY be initialized if a
+#            maria_srv_user. The data directory will ONLY be initialized if a
 #            corresponding 'mysql' db does not exist (corrupt or incomplete
 #            data directories will cause service to fail).
 #
-# maria_server_mariadb:
+# maria_cfg_server_mariadb:
 #     list of dict - MariaDB daemon configuration versioned section settings.
 #   - version: str - MariaDB version settings apply to.
 #         Special Case:
@@ -48,7 +48,7 @@ maria_server_server: {}
 #     config: dict - MariaDB daemon configuration section settings.
 #       {KEY}: str - Value.
 #
-# maria_server_mariadb:
+# maria_cfg_server_mariadb:
 #   - version: 'all'
 #     config:
 #       pid_file: 'run/mysqld/mysqld.pid'
@@ -74,7 +74,7 @@ maria_server_server: {}
 #
 # Reference:
 # * https://mariadb.com/kb/en/server-system-variables/
-maria_server_mariadb:
+maria_cfg_server_mariadb:
   - version: 'all'
     config:
       pid_file: '/run/mysqld/mysqld.pid'
@@ -88,15 +88,15 @@ maria_server_mariadb:
 #
 # Special Case:
 #   datadir: Directory will automatically be created and permissions set using
-#            maria_user. The data directory will ONLY be initialized if a
+#            maria_srv_user. The data directory will ONLY be initialized if a
 #            corresponding 'mysql' db does not exist (corrupt or incomplete
 #            data directories will cause service to fail).
 #
-# maria_server_embedded:
+# maria_cfg_server_embedded:
 #     dict - MariaDB daemon configuration section settings.
 #   {KEY}: str - Value.
 #
-# maria_server_embedded:
+# maria_cfg_server_embedded:
 #   datadir: '/var/lib/mysql'
 #   tmpdir: '/tmp'
 #
@@ -104,4 +104,4 @@ maria_server_mariadb:
 #
 # Reference:
 # * https://mariadb.com/kb/en/server-system-variables/
-maria_server_embedded: {}
+maria_cfg_server_embedded: {}

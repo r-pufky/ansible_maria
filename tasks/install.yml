@@ -2,40 +2,15 @@
 ###############################################################################
 # MariaDB Install
 ###############################################################################
-# Add users, install required packages for utilities and MariaDB. Stop service
-# to apply service changes (service must have new settings loaded to apply
-# security, user, and database changes).
-#
-# Generates:
-#   _maria_uid: int - Maria user UID.
-#   _maria_gid: int - Maria user GID.
+# Install required packages for utilities and MariaDB. Stop service to apply
+# service changes (service must have new settings loaded to apply security,
+# user, and database changes).
 #
 # Reference:
 # * https://downloads.mariadb.org/mariadb/repositories/
 # * https://mariadb.com/docs/features/mariadb-enterprise-server/
 # * https://computingforgeeks.com/how-to-install-mariadb-on-debian/
 # * https://github.com/geerlingguy/ansible-role-mysql
-
-- name: 'Install | manage users'
-  when: maria_create_user
-  ansible.builtin.include_role:
-    name: 'r_pufky.deb.users'
-    tasks_from: 'role_account_add.yml'
-  vars:
-    users_role_group: '{{ maria_role_group }}'
-    users_role_user: '{{ maria_role_user }}'
-
-- name: 'Install | enumerate system user {{ maria_user }}'
-  ansible.builtin.user:
-    name: '{{ maria_user }}'
-  check_mode: true
-  changed_when: false
-  register: _maria_user_query
-
-- name: 'Install | parse system user UID/GID'
-  ansible.builtin.set_fact:
-    _maria_uid: '{{ _maria_user_query.uid }}'
-    _maria_gid: '{{ _maria_user_query.group }}'
 
 - name: 'Install | packages'
   ansible.builtin.include_role:
@@ -46,7 +21,10 @@
     apt_sources: '{{ maria_role_apt_sources }}'
     apt_package_update_cache: true
 
-- name: 'Install | stop service'
+- name: 'Install | stop services'
   ansible.builtin.systemd:
-    name: 'mariadb'
+    name: '{{ item }}'
     state: 'stopped'
+  failed_when: false
+  loop:
+    - 'mariadb.service'

@@ -1,24 +1,24 @@
-{% if maria_server_server is defined and maria_server_server | length > 0 %}
+{% if _maria_cfg_server_server.raw | length > 0 %}
 [server]
-{% for key, value in maria_server_server.items() %}
+{%   for key, value in _maria_cfg_server_server.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_server_embedded is defined and maria_server_embedded | length > 0 %}
+{% if _maria_cfg_server_embedded.raw | length > 0 %}
 [embedded]
-{% for key, value in maria_server_embedded.items() %}
+{%   for key, value in _maria_cfg_server_embedded.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_server_mariadb is defined and maria_server_mariadb | length > 0 %}
-{% for server in maria_server_mariadb %}
-{% if server.version | lower == 'all' %}
+{% if _maria_cfg_server_mariadb.raw | length > 0 %}
+{%   for server in _maria_cfg_server_mariadb.raw %}
+{%     if server.version | lower == 'all' %}
 [mariadbd]
-{% else %}
+{%     else %}
 [mariadb-{{ server.version }}]
-{% endif %}
-{% for key, value in server.config.items() %}
+{%     endif %}
+{%     for key, value in server.config.items() %}
 {{ key }}={{ value }}
-{% endfor %}
-{% endfor %}
+{%     endfor %}
+{%   endfor %}
 {% endif %}

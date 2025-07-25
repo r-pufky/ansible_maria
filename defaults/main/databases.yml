@@ -6,7 +6,7 @@
 
 # Databases to manage.
 #
-# maria_databases:
+# maria_cfg_databases:
 #     list of dict - Database definitions from community.mysql.mysql_db.
 #   - ca_cert: str - Path to Certificate Authority (CA) certificate. This
 #           option must specify the same certificate as used by user.
@@ -147,10 +147,10 @@
 #
 #                       source: 'host_vars/db.example.com/data/skeleton.sql'
 #                   '': Use 'latest' individual DB backup from
-#                       maria_databases_backup_dir (default).
+#                       maria_cfg_databases_backup_dir (default).
 #             Default: '' (use latest backup).
 #
-# maria_databases:
+# maria_cfg_databases:
 #   - name: 'example_import_from_controller'
 #     collation: 'utf8_unicode_520_ci'
 #     encoding: 'utf8'
@@ -171,7 +171,7 @@
 #
 # Reference:
 # * https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_db_module.html
-maria_databases: []
+maria_cfg_databases: []
 
 ###############################################################################
 # MariaDB Database Backups
@@ -188,44 +188,44 @@ maria_databases: []
 # Disable if custom or complex backups are needed.
 
 # Enable database backup service? Default: True.
-maria_databases_backup_enable: true
+maria_cfg_databases_backup_enable: true
 
 # Enable all database backups?
 #
-# May be used with maria_databases_backup_individual_enable.
+# May be used with maria_cfg_databases_backup_individual_enable.
 #
 # All databases will be backed up to:
-# * maria_databases_backup_dir/all-databases-{DATE}.sql
-# * maria_databases_backup_dir/all-databases-latest.sql ->
-#   maria_databases_backup_dir/all-databases-{DATE}.sql
+# * maria_cfg_databases_backup_dir/all-databases-{DATE}.sql
+# * maria_cfg_databases_backup_dir/all-databases-latest.sql ->
+#   maria_cfg_databases_backup_dir/all-databases-{DATE}.sql
 #
 # Default: True.
-maria_databases_backup_all_enable: true
+maria_cfg_databases_backup_all_enable: true
 
 # Enable individual database backups?
 #
-# May be used with maria_databases_backup_all_enable.
+# May be used with maria_cfg_databases_backup_all_enable.
 #
 # All databases will be backed up individually to:
-# * maria_databases_backup_dir/{DB}-{DATE}.sql
-# * maria_databases_backup_dir/{DB}-latest.sql ->
-#   maria_databases_backup_dir/{DB}-{DATE}.sql
+# * maria_cfg_databases_backup_dir/{DB}-{DATE}.sql
+# * maria_cfg_databases_backup_dir/{DB}-latest.sql ->
+#   maria_cfg_databases_backup_dir/{DB}-{DATE}.sql
 #
 # Default: True.
-maria_databases_backup_individual_enable: true
+maria_cfg_databases_backup_individual_enable: true
 
 # Backup location.
 #
 # Directory will be created with root permissions.
 #
 # Default: '/var/lib/maria_backup'.
-maria_databases_backup_dir: '/var/lib/maria_backup'
+maria_cfg_databases_backup_dir: '/var/lib/maria_backup'
 
 # Backup file owner. Default: 'root'.
-maria_databases_backup_owner: 'root'
+maria_cfg_databases_backup_owner: 'root'
 
 # Backup file group. Default: 'root'.
-maria_databases_backup_group: 'root'
+maria_cfg_databases_backup_group: 'root'
 
 # Set backup schedule.
 #
@@ -235,7 +235,7 @@ maria_databases_backup_group: 'root'
 #
 # Reference:
 # * https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html
-maria_databases_backup_schedule: 'weekly'
+maria_cfg_databases_backup_schedule: 'weekly'
 
 # List of mariadb-dump options for backing up databases.
 #
@@ -249,7 +249,7 @@ maria_databases_backup_schedule: 'weekly'
 #
 # Reference:
 # * https://manpages.debian.org/bookworm/mariadb-client/mariadb-dump.1.en.html
-maria_databases_backup_options:
+maria_cfg_databases_backup_options:
   - '--routines'
   - '--events'
   - '--triggers'

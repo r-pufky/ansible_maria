@@ -28,8 +28,8 @@
     name: 'root'
     host_all: true  # root@*
     priv: '*.*:ALL,GRANT'
-    password: '{{ maria_service_password }}'
-    login_password: '{{ maria_service_password }}'
+    password: '{{ _maria_srv_password.raw }}'
+    login_password: '{{ _maria_srv_password.raw }}'
     login_unix_socket: '{{ maria_role_socket }}'
     check_implicit_admin: true
     column_case_sensitive: true

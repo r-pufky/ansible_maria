@@ -1,0 +1,15 @@
+---
+- name: 'Prepare'
+  hosts: 'maria-debian-12-user_data'
+  gather_facts: false
+  tasks:
+    - name: 'Prepare | simulate user media restriction'
+      ansible.builtin.file:
+        path: '{{ item }}'
+        owner: 301
+        group: 301
+        mode: '0755'
+        state: 'directory'
+      loop:
+        - '/var/lib/mysql'
+        - '/srv'

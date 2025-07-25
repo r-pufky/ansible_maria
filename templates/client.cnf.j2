@@ -1,12 +1,12 @@
-{% if maria_client_all is defined and maria_client_all | length > 0 %}
+{% if _maria_cfg_client_all.raw | length > 0 %}
 [client]
-{% for key, value in maria_client_all.items() %}
+{%   for key, value in _maria_cfg_client_all.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_client_only is defined and maria_client_only | length > 0 %}
+{% if _maria_cfg_client_only.raw | length > 0 %}
 [client-mariadb]
-{% for key, value in maria_client_only.items() %}
+{%   for key, value in _maria_cfg_client_only.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}

@@ -8,21 +8,34 @@
 # * Deletes all anonymous users.
 # * Delete test database & privileges.
 # * Flushes privileges.
-
-# Maria version to install.
 #
-# Additional versions may be specified from downloads but may not be fully
-# supported by the role.
+# Install size: ~58MB
+#    MariaDB: ~56MB.
+#   Packages: ~1.64MB.
+
+# MariaDB Release.
+#
+# All versions are supported by the Maria Debian repository but may not be
+# fully supported by the role.
+#
+# Versions (Schematic):
+#       MAJOR: Unsafe - requires major role changes; only default version is
+#              supported; older versions may be used at the risk of missing
+#              dependencies or configuration parameters that are not supported.
+#              See other branches if they exist.
+#       MINOR: Safe - New configuration options may be supported in extensions
+#              until integrated into the role.
+#       PATCH: Safe - Usually requires no role updates.
+#   RECOMMEND: Only use latest stable release.
 #
 # Values:
 #   11.rolling: Latest 11 stable release (default).
-#         11.8: 11.8 release.
+#         11.8: 16.x release.
 #         11.4: 11.4 release.
 #        10.11: 10.11 release.
 #
-# Reference:
-# * https://mariadb.org/download
-maria_service_version: '11.rolling'
+# Default: '11.rolling'.
+maria_srv_version: '11.rolling'
 
 # Path to MariaDB certificates.
 #
@@ -30,10 +43,10 @@ maria_service_version: '11.rolling'
 # {{ maria_role_confd }}/certs/ with correct permissions. Be sure to set
 # appropriate paths for MariaDB configuration settings.
 #
-# maria_service_certs_path: 'host_vars/db.example.com/data/certs'
+# maria_srv_certs_path: 'host_vars/db.example.com/data/certs'
 #
 # Default: '' (disabled).
-maria_service_certs_path: ''
+maria_srv_certs_path: ''
 
 # MariaDB local root password.
 #
@@ -47,7 +60,7 @@ maria_service_certs_path: ''
 # Generated password is predictable and should ALWAYS be changed.
 #
 # Default: '{RANDOM}' (idempotent based on hostname).
-maria_service_password: '{{
+maria_srv_password: '{{
     lookup("ansible.builtin.password",
            "/dev/null",
            chars=["ascii_lowercase", "ascii_uppercase", "digits"],
@@ -61,7 +74,7 @@ maria_service_password: '{{
 # state on package removal via debconf maria-server/postrm_remove_databases.
 #
 # Default: False (Debian default).
-maria_service_purge_enable: false
+maria_srv_purge_enable: false
 
 ###############################################################################
 # MariaDB User
@@ -71,30 +84,37 @@ maria_service_purge_enable: false
 
 # User that MariaDB will run under.
 #
-# Enable maria_create_user if this account is not externally managed.
+# Enable maria_srv_create_user if this account is not externally managed.
 #
 # Default: 'mysql'.
-maria_user: 'mysql'
+maria_srv_user: 'mysql'
 
 # Group that MariaDB will run under.
 #
-# Enable maria_create_user if this group is not externally managed.
+# Enable maria_srv_create_user if this group is not externally managed.
 #
 # Default: 'mysql'.
-maria_group: 'mysql'
+maria_srv_group: 'mysql'
 
-# Create maria_user, maria_group if not detected?
+# Create maria_srv_user, maria_srv_group if not detected?
 #
 # Applied via r_pufky.deb.users, see vars/main.yml for default user attributes.
 #
 # Default: True.
-maria_create_user: true
+maria_srv_create_user: true
 
-# Manage data directories (datadir) as maria_user?
+# Manage data directories (datadir) as maria_srv_user?
 #
 # Data locations may be mounted over network (with only maria user and
 # everything else mapping to nobody/nogroup). Execute commands touching those
 # root mount points as maria user to ensure they can be read or written.
 #
+#
+# * /var/lib/mysql
+# * maria_cfg_databases_backup_dir
+# * maria_cfg_mariadb_client_server[].datadir
+# * maria_cfg_server_server[].datadir
+# * maria_server_embedded[].datadir
+#
 # Default: False.
-maria_user_data_manage_enable: false
+maria_srv_user_data_manage_enable: false

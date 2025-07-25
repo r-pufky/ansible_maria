@@ -32,21 +32,25 @@
 - name: 'Initialize | manage {{ _maria_init_db_data_dir }}'
   ansible.builtin.file:
     path: '{{ _maria_init_db_data_dir }}'
-    owner: '{{ maria_user }}'
-    group: '{{ maria_group }}'
+    owner: '{{ _maria_srv_user.parsed }}'
+    group: '{{ _maria_srv_group.parsed }}'
     mode: '0755'
     state: 'directory'
-  become: '{{ true if maria_user_data_manage_enable else omit }}'
-  become_user: '{{ maria_user if maria_user_data_manage_enable else omit }}'
+  become: '{{ true if _maria_srv_user_data_manage_enable.raw else omit }}'
+  become_user: '{{
+      _maria_srv_user.raw if _maria_srv_user_data_manage_enable.raw else omit
+    }}'
 
 - name: 'Initialize | check data directory initialization'
   ansible.builtin.stat:
     path: '{{ _maria_init_db_data_dir }}/mysql'
-  become: '{{ true if maria_user_data_manage_enable else omit }}'
-  become_user: '{{ maria_user if maria_user_data_manage_enable else omit }}'
+  become: '{{ true if _maria_srv_user_data_manage_enable.raw else omit }}'
+  become_user: '{{
+      _maria_srv_user.raw if _maria_srv_user_data_manage_enable.raw else omit
+    }}'
   register: _maria_init_data
 
-# Run as maria_user to initialize with correct permissions.
+# Run as maria_srv_user to initialize with correct permissions.
 - name: 'Initialize | initialize'
   when: not _maria_init_data.stat.exists
   ansible.builtin.command:
@@ -61,4 +65,4 @@
   changed_when: "'already exists!' not in _maria_install_db.stdout"
   register: _maria_install_db
   become: true
-  become_user: '{{ maria_user }}'
+  become_user: '{{ _maria_srv_user.raw }}'

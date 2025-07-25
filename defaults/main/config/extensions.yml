@@ -14,13 +14,13 @@
 #
 # https://github.com/r-pufky/ansible_maria/issues
 #
-# maria_settings_extensions:
+# _maria_cfg_extensions:
 #     list of dict - MariaDB setting extensions.
 #   - section: str - Section heading.
 #     config: dict - MariaDB daemon configuration section settings.
 #       {KEY}: str - Value.
 #
-# maria_settings_extensions:
+# _maria_cfg_extensions:
 #   - section: 'mariadbd'
 #     config:
 #       bind_address: '127.0.0.1'
@@ -29,4 +29,4 @@
 # bind_address=127.0.0.1
 #
 # Default: {}
-maria_settings_extensions: {}
+_maria_cfg_extensions: {}

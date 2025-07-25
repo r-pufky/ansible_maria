@@ -1,54 +1,54 @@
-{% if maria_mariadb_client is defined and maria_mariadb_client | length > 0 %}
+{% if _maria_cfg_mariadb_client.raw | length > 0 %}
 [mariadb-client]
-{% for key, value in maria_mariadb_client.items() %}
+{%   for key, value in _maria_cfg_mariadb_client.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_mariadb_upgrade is defined and maria_mariadb_upgrade | length > 0 %}
+{% if _maria_cfg_mariadb_upgrade.raw | length > 0 %}
 [mariadb-upgrade]
-{% for key, value in maria_mariadb_upgrade.items() %}
+{%   for key, value in _maria_cfg_mariadb_upgrade.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_mariadb_admin is defined and maria_mariadb_admin | length > 0 %}
+{% if _maria_cfg_mariadb_admin.raw | length > 0 %}
 [mariadb-admin]
-{% for key, value in maria_mariadb_admin.items() %}
+{%   for key, value in _maria_cfg_mariadb_admin.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_mariadb_binlog is defined and maria_mariadb_binlog | length > 0 %}
+{% if _maria_cfg_mariadb_binlog.raw | length > 0 %}
 [mariadb-binlog]
-{% for key, value in maria_mariadb_binlog.items() %}
+{%   for key, value in _maria_cfg_mariadb_binlog.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_mariadb_check is defined and maria_mariadb_check | length > 0 %}
+{% if _maria_cfg_mariadb_check.raw | length > 0 %}
 [mariadb-check]
-{% for key, value in maria_mariadb_check.items() %}
+{%   for key, value in _maria_cfg_mariadb_check.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_mariadb_dump is defined and maria_mariadb_dump | length > 0 %}
+{% if _maria_cfg_mariadb_dump.raw | length > 0 %}
 [mariadb-dump]
-{% for key, value in maria_mariadb_dump.items() %}
+{%   for key, value in _maria_cfg_mariadb_dump.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_mariadb_import is defined and maria_mariadb_import | length > 0 %}
+{% if _maria_cfg_mariadb_import.raw | length > 0 %}
 [mariadb-import]
-{% for key, value in maria_mariadb_import.items() %}
+{%   for key, value in _maria_cfg_mariadb_import.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_mariadb_show is defined and maria_mariadb_show | length > 0 %}
+{% if _maria_cfg_mariadb_show.raw | length > 0 %}
 [mariadb-show]
-{% for key, value in maria_mariadb_show.items() %}
+{%   for key, value in _maria_cfg_mariadb_show.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}
-{% if maria_mariadb_slap is defined and maria_mariadb_slap | length > 0 %}
+{% if _maria_cfg_mariadb_slap.raw | length > 0 %}
 [mariadb-slap]
-{% for key, value in maria_mariadb_slap.items() %}
+{%   for key, value in _maria_cfg_mariadb_slap.raw.items() %}
 {{ key }}={{ value }}
-{% endfor %}
+{%   endfor %}
 {% endif %}

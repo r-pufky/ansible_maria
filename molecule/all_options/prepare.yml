@@ -12,30 +12,30 @@
 # * https://superuser.com/questions/226192/avoid-password-prompt-for-keys-and-prompts-for-dn-information
 # yamllint enable rule:line-length
 
-- name: 'All options | prepare'
+- name: 'Prepare'
   hosts: 127.0.0.1
   connection: local
   gather_facts: false
   tasks:
-    - name: 'All options | prepare | generate cache location'
+    - name: 'Prepare | generate cache location'
       ansible.builtin.set_fact:
         _test_cache:
           '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
 
-    - name: All options | prepare | create cache'
+    - name: Prepare | create cache'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'create_cache.yml'
       vars:
-        test_name: All options | prepare | create cache'
+        test_name: Prepare | create cache'
 
-    - name: 'All options | prepare | generate test CA private key'
+    - name: 'Prepare | generate test CA private key'
       ansible.builtin.shell:
         'openssl genrsa 2048 > "{{ _test_cache }}/ca-key.pem"'
       args:
         creates: '{{ _test_cache }}/ca-key.pem'
 
-    - name: 'All options | prepare | generate test CA certificate'
+    - name: 'Prepare | generate test CA certificate'
       ansible.builtin.command:
         argv:
           - 'openssl'
@@ -53,7 +53,7 @@
           - '{{ _test_cache }}/ca.pem'
         creates: '{{ _test_cache }}/ca.pem'
 
-    - name: 'All options | prepare | generate test client certificate request'
+    - name: 'Prepare | generate test client certificate request'
       ansible.builtin.command:
         argv:
           - 'openssl'
@@ -72,7 +72,7 @@
           - '{{ _test_cache }}/server-req.pem'
         creates: '{{ _test_cache }}/server-req.pem'
 
-    - name: 'All options | prepare | sign test certificate'
+    - name: 'Prepare | sign test certificate'
       ansible.builtin.command:
         argv:
           - 'openssl'

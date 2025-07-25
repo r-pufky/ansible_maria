@@ -22,22 +22,22 @@ provisioner:
   inventory:
     group_vars:
       all:
-        maria_server_mariadb:
+        maria_cfg_server_mariadb:
           - version: 'all'
             config:
               datadir: '/tmp/test'
               basedir: '/usr'
               bind_address: '127.0.0.1'
               expire_logs_days: 10
-        maria_service_password: 'test'
-        maria_users:
+        maria_srv_password: 'test'
+        maria_cfg_users:
           - name: 'test1'
             host: '%'
             password: 'test'
           - name: 'test2'
             host: '%'
             password: 'test'
-        maria_databases:
+        maria_cfg_databases:
           - name: 'skeleton'
             collation: 'utf8_unicode_520_ci'
             encoding: 'utf8'

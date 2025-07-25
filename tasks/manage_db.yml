@@ -5,12 +5,12 @@
 # If the database is newly created, automatically attempt to import the latest
 # backup.
 #
-# Imports using maria_databases_backup_enable generate archives with a single
-# file in it; otherwise copy a single text .sql file from the controller and
-# execute import. If the import fails, cleanup the staged database.
+# Imports using maria_cfg_databases_backup_enable generate archives with a
+# single file in it; otherwise copy a single text .sql file from the controller
+# and execute import. If the import fails, cleanup the staged database.
 #
 # Args:
-#   db: dict - maria_databases database definition.
+#   db: dict - maria_cfg_databases database definition.
 #
 # Reference:
 # * https://semisignal.com/mysql-database-import-with-ansible/
@@ -78,7 +78,10 @@
     - name: 'Manage | DB | import | copy from backups'
       when: _maria_db_import_source | length == 0
       ansible.builtin.copy:
-        src: '{{ maria_databases_backup_dir }}/{{ db.name }}-latest.sql'
+        src: '{{
+            _maria_cfg_databases_backup_dir.raw ~ "/" ~
+            db.name ~ "-latest.sql"
+          }}'
         dest: '/tmp/maria_db_import.sql'
         remote_src: true
         owner: 'root'

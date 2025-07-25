@@ -1,18 +1,18 @@
 ---
-- name: 'Auto backup | converge'
+- name: 'Converge'
   hosts: 'all'
   gather_facts: false
   tasks:
-    - name: 'Auto backup | converge | apply r_pufky.srv.maria'
+    - name: 'Converge | apply r_pufky.srv.maria'
       ansible.builtin.include_role:
         name: 'r_pufky.srv.maria'
 
-- name: 'Auto backup | converge | disable auto-backup'
+- name: 'Converge | disable auto-backup'
   hosts: 'maria-debian-12-auto_backup-disable'
   gather_facts: false
   tasks:
-    - name: 'Auto backup | converge | apply r_pufky.srv.maria'
+    - name: 'Converge | apply r_pufky.srv.maria'
       ansible.builtin.include_role:
         name: 'r_pufky.srv.maria'
       vars:
-        maria_databases_backup_enable: false
+        maria_cfg_databases_backup_enable: false

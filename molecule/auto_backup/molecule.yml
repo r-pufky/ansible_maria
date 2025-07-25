@@ -23,12 +23,12 @@ provisioner:
   inventory:
     group_vars:
       all:
-        maria_service_password: 'test'
-        maria_users:
+        maria_srv_password: 'test'
+        maria_cfg_users:
           - name: 'test1'
             host: '%'
             password: 'test'
-        maria_databases:
+        maria_cfg_databases:
           - name: 'skeleton'
             collation: 'utf8_unicode_520_ci'
             encoding: 'utf8'

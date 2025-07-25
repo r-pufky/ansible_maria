@@ -4,10 +4,10 @@
 #
 set -e
 DATE_STAMP=`date +%Y-%m-%d`
-OWNER='{{ maria_databases_backup_owner | default(maria_user) }}'
-GROUP='{{ maria_databases_backup_group | default(maria_group) }}'
-TARGET='{{ maria_databases_backup_dir | default("/var/lib/maria_backup") }}'
-OPTIONS='{{ maria_databases_backup_options | join(" ") }}'
+OWNER='{{ _maria_cfg_databases_backup_owner.raw }}'
+GROUP='{{ _maria_cfg_databases_backup_group.raw }}'
+TARGET='{{ _maria_cfg_databases_backup_dir.raw }}'
+OPTIONS='{{ _maria_cfg_databases_backup_options.role }}'
 
 function dump_all () {
   DUMP="${TARGET}/all-databases-${DATE_STAMP}.sql"
@@ -45,9 +45,9 @@ function compress_db () {
   chmod o-rwx "*.tar.xz" 2>/dev/null || true
 }
 
-{% if maria_databases_backup_all_enable | default(true) %}
+{% if _maria_cfg_databases_backup_all_enable.raw %}
 dump_all
 {% endif %}
-{% if maria_databases_backup_individual_enable | default(true) %}
+{% if _maria_cfg_databases_backup_individual_enable.raw %}
 dump_dbs
 {% endif %}

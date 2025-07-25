@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # MariaDB Encryption
 ###############################################################################
@@ -10,25 +9,27 @@
 #
 #   echo -n "1;`openssl rand -hex 32`" > keyfile
 #   openssl rand -hex 128 > keyfile.key
-#   openssl enc -aes-256-cbc -md sha1 -pass file:keyfile.key -in keyfile -out keyfile.enc
+#   openssl enc -aes-256-cbc -md sha1 -pass file:keyfile.key \
+#      -in keyfile -out keyfile.enc
 #
 # Enable Encryption:
-#   maria_encryption_enable: true
-#   maria_encryption_path: 'host_vars/db.example.com/data/encryption'
-#   maria_server_mariadb:
+#   maria_cfg_encryption_enable: true
+#   maria_cfg_encryption_path: 'host_vars/db.example.com/data/encryption'
+#   maria_cfg_server_mariadb:
 #     - version: 'all'
 #       config:
 #         pid_file: '/run/mysqld/mysqld.pid'
 #         basedir: '/usr'
 #         bind_address: '127.0.0.1'
 #         expire_logs_days: 10
-#         file_key_management_filename: '/etc/mysql/mariadb.conf.d/encryption/keyfile.enc'
-#         file_key_management_filekey: 'FILE:/etc/mysql/mariadb.conf.d/encryption/keyfile.key'
+#         file_key_management_filename:
+#           '/etc/mysql/mariadb.conf.d/encryption/keyfile.enc'
+#         file_key_management_filekey:
+#           'FILE:/etc/mysql/mariadb.conf.d/encryption/keyfile.key'
 #         file_key_management_encryption_algorithm: 'AES_CTR'
 #
 # Reference:
 # * https://mariadb.com/kb/en/file-key-management-encryption-plugin/
-# yamllint enable rule:line-length
 
 # Enable data at rest encryption?
 #
@@ -37,7 +38,7 @@
 #
 # Reference:
 # * https://mariadb.com/kb/en/file-key-management-encryption-plugin/
-maria_encryption_enable: false
+maria_cfg_encryption_enable: false
 
 # Path to encryption files.
 #
@@ -45,16 +46,16 @@ maria_encryption_enable: false
 # {{ maria_role_confd }}/encryption/ with correct permissions. Be sure to set
 # appropriate paths for MariaDB configuration settings.
 #
-# maria_encryption_path: 'host_vars/db.example.com/data/encryption'
+# maria_cfg_encryption_path: 'host_vars/db.example.com/data/encryption'
 #
 # Default: '' (disabled).
-maria_encryption_path: ''
+maria_cfg_encryption_path: ''
 
 # Custom encryption settings.
 #
 # Encryption settings defined here will override preset settings.
 #
-# maria_encryption_settings:
+# maria_cfg_encryption_settings:
 #   - 'aria-encrypt-tables'
 #   - 'encrypt-binlog'
 #   - 'encrypt-tmp-disk-tables'
@@ -63,4 +64,4 @@ maria_encryption_path: ''
 #   - 'loose-innodb-encrypt-tables'
 #
 # Default: [].
-maria_encryption_settings: []
+maria_cfg_encryption_settings: []

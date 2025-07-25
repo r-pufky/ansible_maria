@@ -1,8 +1,8 @@
 ---
-- name: 'Encryption | converge'
+- name: 'Converge'
   hosts: 'all'
   gather_facts: false
   tasks:
-    - name: 'Encryption | converge | apply r_pufky.srv.maria'
+    - name: 'Converge | apply r_pufky.srv.maria'
       ansible.builtin.include_role:
         name: 'r_pufky.srv.maria'

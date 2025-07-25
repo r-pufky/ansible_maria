@@ -1,0 +1,17 @@
+---
+###############################################################################
+# Validate
+###############################################################################
+# Start Maria services and confirm they are active and running. Service
+# already started to update local users/databases.
+
+- name: 'Validate | query service status'
+  ansible.builtin.service_facts:
+
+- name: 'Validate | assert services running'
+  ansible.builtin.assert:
+    quiet: true
+    that: ansible_facts.services[item].state == 'running'
+    fail_msg: '✘ {{ item }} should be running.'
+  loop:
+    - 'mariadb.service'

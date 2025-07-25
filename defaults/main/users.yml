@@ -8,7 +8,7 @@
 #
 # Users are managed via MariaDB local root account.
 #
-# maria_users:
+# maria_cfg_users:
 #     list of dict - DB user definitions from community.mysql.mysql_user.
 #   - append_privs: bool - Append the privileges defined by priv to the
 #           existing ones for this user instead of overwriting existing ones.
@@ -193,7 +193,7 @@
 #                            plugin_hash_string or plugin_auth_string argument.
 #         Default: 'always'.
 #
-# maria_users:
+# maria_cfg_users:
 #   - name: 'example'
 #     host 'localhost'
 #     password: '{{ vault_password }}'
@@ -206,4 +206,4 @@
 #
 # Reference:
 # * https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_user_module.html
-maria_users: []
+maria_cfg_users: []

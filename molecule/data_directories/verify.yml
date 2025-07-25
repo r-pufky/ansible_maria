@@ -1,13 +1,13 @@
 ---
-- name: 'Data directories | verify database'
+- name: 'Verify database'
   hosts: 'all'
   gather_facts: false
   tasks:
-    - name: 'Data directories | verify database | gather service status'
+    - name: 'Verify database | gather service status'
       ansible.builtin.service_facts:
 
     - name:
-        'Data directories | verify database | assert mariadb.service active'
+        'Verify database | assert mariadb.service active'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -15,33 +15,33 @@
           - 'ansible_facts["services"]["mariadb.service"]["state"] == "running"'  # yamllint disable-line rule:line-length
         fail_msg: '✘ mariadb.service should be enabled and running.'
 
-    - name: 'Data directories | verify database | query test1 user'
+    - name: 'Verify database | query test1 user'
       community.mysql.mysql_query:
         login_db: 'mysql'
         query: 'SELECT user FROM mysql.user WHERE user="test1" and host="%"'
         login_unix_socket: '/run/mysqld/mysqld.sock'
       register: _maria_query
 
-    - name: 'Data directories | verify database | assert test1 user created'
+    - name: 'Verify database | assert test1 user created'
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
         fail_msg: '✘ test1@% should have been created.'
 
-    - name: 'Data directories | verify database | query test2 user'
+    - name: 'Verify database | query test2 user'
       community.mysql.mysql_query:
         login_db: 'mysql'
         query: 'SELECT user FROM mysql.user WHERE user="test2" and host="%"'
         login_unix_socket: '/run/mysqld/mysqld.sock'
       register: _maria_query
 
-    - name: 'Data directories | verify database | assert test2 user create'
+    - name: 'Verify database | assert test2 user create'
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
         fail_msg: '✘ test2@% should have been created.'
 
-    - name: 'Data directories | verify database | query skeleton database'
+    - name: 'Verify database | query skeleton database'
       community.mysql.mysql_query:
         login_db: 'mysql'
         query: 'SELECT schema_name FROM information_schema.schemata WHERE schema_name="skeleton"'  # yamllint disable-line rule:line-length
@@ -49,13 +49,13 @@
       register: _maria_query
 
     - name:
-        'Data directories | verify database | assert skeleton database create'
+        'Verify database | assert skeleton database create'
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
         fail_msg: '✘ skeleton database should have been created.'
 
-    - name: 'Data directories | verify database | query skeleton.default table'
+    - name: 'Verify database | query skeleton.default table'
       community.mysql.mysql_query:
         login_db: 'mysql'
         query: 'SELECT * FROM information_schema.tables WHERE table_schema="skeleton" AND table_name="default"'  # yamllint disable-line rule:line-length
@@ -63,7 +63,7 @@
       register: _maria_query
 
     - name:
-        'Data directories | verify database | assert skeleton.default exists'
+        'Verify database | assert skeleton.default exists'
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
@@ -71,45 +71,47 @@
           ✘ skeleton.default table should exist
           (skeleton.modified should not have been imported).
 
-    - name: 'Data directories | verify database | query empty database'
+    - name: 'Verify database | query empty database'
       community.mysql.mysql_query:
         login_db: 'mysql'
         query: 'SELECT schema_name FROM information_schema.schemata WHERE schema_name="empty"'  # yamllint disable-line rule:line-length
         login_unix_socket: '/run/mysqld/mysqld.sock'
       register: _maria_query
 
-    - name: 'Data directories | verify database | assert empty database create'
+    - name: 'Verify database | assert empty database create'
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
         fail_msg: '✘ empty database should have been created.'
 
-- name: 'Data directories | verify config'
+- name: 'Verify config'
   hosts: 'all'
   gather_facts: false
   tasks:
-    - name: 'Data directories | verify | /etc/mysql/mariadb.cnf'
+    - name: 'Verify | /etc/mysql/mariadb.cnf'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Data directories | verify | /etc/mysql/mariadb.cnf'
+        test_name: 'Verify | /etc/mysql/mariadb.cnf'
         test_src: 'files/mariadb.cnf'
         test_file: '/etc/mysql/mariadb.cnf'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0644'
+        test_diff: true
 
     - name:
-        'Data directories | verify | /etc/mysql/mariadb.conf.d/50-server.cnf'
+        'Verify | /etc/mysql/mariadb.conf.d/50-server.cnf'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
         test_name:
-          'Data directories | verify | /etc/mysql/mariadb.conf.d/50-server.cnf'
+          'Verify | /etc/mysql/mariadb.conf.d/50-server.cnf'
         test_src: 'files/50-server.cnf'
         test_file: '/etc/mysql/mariadb.conf.d/50-server.cnf'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0644'
+        test_diff: true

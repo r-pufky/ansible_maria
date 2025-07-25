@@ -1,12 +1,12 @@
 ---
-- name: 'All options | verify'
+- name: 'Verify'
   hosts: 'all'
   gather_facts: false
   tasks:
-    - name: 'All options | verify | gather service status'
+    - name: 'Verify | gather service status'
       ansible.builtin.service_facts:
 
-    - name: 'All options | verify | assert mariadb.service active'
+    - name: 'Verify | assert mariadb.service active'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -14,30 +14,32 @@
           - 'ansible_facts["services"]["mariadb.service"]["state"] == "running"'  # yamllint disable-line rule:line-length
         fail_msg: '✘ mariadb.service should be enabled and running.'
 
-    - name: 'All options | verify | /etc/mysql/mariadb.cnf'
+    - name: 'Verify | /etc/mysql/mariadb.cnf'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'All options | verify | /etc/mysql/mariadb.cnf'
+        test_name: 'Verify | /etc/mysql/mariadb.cnf'
         test_src: 'files/mariadb.cnf'
         test_file: '/etc/mysql/mariadb.cnf'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0644'
+        test_diff: true
 
-    - name: 'All options | verify | /etc/mysql/mariadb.conf.d'
+    - name: 'Verify | /etc/mysql/mariadb.conf.d'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
         test_name:
-          'All options | verify | /etc/mysql/mariadb.conf.d/{{ item }}'
+          'Verify | /etc/mysql/mariadb.conf.d/{{ item }}'
         test_src: 'files/{{ item }}'
         test_file: '/etc/mysql/mariadb.conf.d/{{ item }}'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0644'
+        test_diff: true
       loop:
         - '50-client.cnf'
         - '50-mariadb-clients.cnf'
@@ -46,14 +48,14 @@
         - '90-extensions.cnf'
 
     - name: >
-        All options | verify |
+        Verify |
         /etc/mysql/mariadb.conf.d/certs/server-cert.pem
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
         test_name: >
-          All options | verify |
+          Verify |
           /etc/mysql/mariadb.conf.d/certs/server-cert.pem
         test_src: '{{
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
@@ -63,3 +65,4 @@
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0600'
+        test_diff: true
