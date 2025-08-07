@@ -17,20 +17,21 @@
 # * Simplified role updates for variable changes.
 # * All data touched by user is in a standard, expected format.
 #
-# Annotated Defaults:
+# Annotated Defaults (2.0):
 # _{VAR}: dict - Annotated and sanitized default variable.
 #   section: str - Section name.
 #   key: str - Config file key.
-#   raw: any - Raw config file value (set from defaults > role defaults).
-#   parsed: any - Processed raw config file value. Optional.
-#   role: any - Role specific config usage. Optional.
+#   raw: any - Raw value from user, defaults, or role defaults.
+#   data: any - Processed raw value for use in rendering. Optional.
+#   default: any - Role default (testing for changed defaults).
 #   hint: str - Value rendering type hint (docstring types).
+#   role_*: any - Role specific usage. Optional.
 #   added: str - Release version variable added.
 #       Special Case:
 #         0.0.0: Unknown or since role inception.
 #   sensitive: bool - True for PII/SPII data that should not be logged.
 #   deprecated: bool - True if no longer used in current role release.
-#   order: int - Order item should appear in rendered files.
+#   order: int - Order item should appear in templated files.
 #
 # Generates:
 #   _maria: dict - Role runtime specific config.
@@ -61,7 +62,8 @@
     _maria_srv_version: {
       section: '',
       key: '',
-      raw: '{{ maria_srv_version | default("11.rolling") }}',
+      raw: '{{ maria_srv_version }}',
+      default: '11.rolling',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -71,17 +73,9 @@
     _maria_srv_certs_path: {
       section: '',
       key: '',
-      # Explicitly avoid '' string resolving to / to find certs.
-      raw: '{{
-          maria_srv_certs_path | default("")
-          if
-          maria_srv_certs_path | length == 0 or
-          maria_srv_certs_path.endswith("/")
-          else
-          maria_srv_certs_path ~ "/"
-        }}',  # (source) Never used directly in config.
-      parsed: '{{ maria_role_confd ~ "/certs/" }}',  # (copy dest).
-      role: '{{ maria_role_confd ~ "/certs" }}',  # (dir).
+      raw: '{{ maria_srv_certs_path }}',
+      role_src: "{{ maria_srv_certs_path | regex_replace('\\/$', '') ~ '/' }}",
+      role_dest: '{{ maria_role_confd ~ "/certs/" }}',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -91,13 +85,13 @@
     _maria_srv_password: {
       section: '',
       key: '',
-      raw: '{{
-          maria_srv_password |
-          default(lookup("ansible.builtin.password",
-                  "/dev/null",
-                  chars=["ascii_lowercase", "ascii_uppercase", "digits"],
-                  length=32,
-                  seed=inventory_hostname))
+      raw: '{{ maria_srv_password }}',
+      default: '{{
+          lookup("ansible.builtin.password",
+                 "/dev/null",
+                 chars=["ascii_lowercase", "ascii_uppercase", "digits"],
+                 length=32,
+                 seed=inventory_hostname)
         }}',
       hint: 'str',
       added: '0.0.0',
@@ -108,9 +102,10 @@
     _maria_srv_purge_enable: {
       section: '',
       key: '',
-      raw: '{{ maria_srv_purge_enable | default(false) }}',
-      parsed: '{{ maria_srv_purge_enable | default(false) | lower }}',
-      role: 'mariadb-server/postrm_remove_databases',  # debconf question.
+      raw: '{{ maria_srv_purge_enable }}',
+      default: false,
+      role_value: '{{ maria_srv_purge_enable | lower }}',
+      role_question: 'mariadb-server/postrm_remove_databases',
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -120,8 +115,9 @@
     _maria_srv_user: {
       section: '',
       key: '',
-      raw: '{{ maria_srv_user | default("mysql") }}',
-      parsed: '',  # (UID) Updated in prep.
+      raw: '{{ maria_srv_user }}',
+      default: 'mysql',
+      role_uid: '',  # (str) UID.
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -131,8 +127,9 @@
     _maria_srv_group: {
       section: '',
       key: '',
-      raw: '{{ maria_srv_group | default("mysql") }}',
-      parsed: '',  # (GID) Updated in prep.
+      raw: '{{ maria_srv_group }}',
+      default: 'mysql',
+      role_gid: '',  # (str) GID.
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -142,7 +139,8 @@
     _maria_srv_create_user: {
       section: '',
       key: '',
-      raw: '{{ maria_srv_create_user | default(true) }}',
+      raw: '{{ maria_srv_create_user }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -152,7 +150,8 @@
     _maria_srv_user_data_manage_enable: {
       section: '',
       key: '',
-      raw: '{{ maria_srv_user_data_manage_enable | default(false) }}',
+      raw: '{{ maria_srv_user_data_manage_enable }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -165,9 +164,9 @@
     _maria_cfg_client_all: {
       section: '50-client.cnf',
       key: 'maria_cfg_client_all',
-      raw: '{{ maria_cfg_client_all | default({}) }}',
-      role:  # maria_cfg_mariadb_* sections.
-        '{{ maria_role_confd ~ "/50-client.cnf" }}',
+      raw: '{{ maria_cfg_client_all }}',
+      default: {},
+      role_dest: '{{ maria_role_confd ~ "/50-client.cnf" }}',
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -177,7 +176,8 @@
     _maria_cfg_client_only: {
       section: '50-client.cnf',
       key: 'maria_cfg_client_only',
-      raw: '{{ maria_cfg_client_only | default({}) }}',
+      raw: '{{ maria_cfg_client_only }}',
+      default: {},
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -187,7 +187,8 @@
     _maria_cfg_encryption_enable: {
       section: 'encryption',
       key: 'maria_cfg_encryption_enable',
-      raw: '{{ maria_cfg_encryption_enable | default(false) }}',
+      raw: '{{ maria_cfg_encryption_enable }}',
+      default: false,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -197,17 +198,10 @@
     _maria_cfg_encryption_path: {
       section: 'encryption',
       key: 'maria_cfg_encryption_path',
-      # Explicitly avoid '' string resolving to / to find certs.
-      raw: '{{
-          maria_cfg_encryption_path | default("")
-          if
-          maria_cfg_encryption_path | length == 0 or
-          maria_cfg_encryption_path.endswith("/")
-          else
-          maria_cfg_encryption_path ~ "/"
-        }}',  # (source) Never used directly in config.
-      parsed: '{{ maria_role_confd ~ "/encryption/" }}',  # (copy dest).
-      role: '{{ maria_role_confd ~ "/encryption" }}',  # (dir).
+      raw: '{{ maria_cfg_encryption_path }}',
+      role_src:
+        "{{ maria_cfg_encryption_path | regex_replace('\\/$', '') ~ '/' }}",
+      role_dest: '{{ maria_role_confd ~ "/encryption/" }}',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -217,8 +211,9 @@
     _maria_cfg_encryption_settings: {
       section: 'encryption',
       key: 'maria_cfg_encryption_settings',
-      raw: '{{ maria_cfg_encryption_settings | default([]) }}',
-      hint: 'list',
+      raw: '{{ maria_cfg_encryption_settings }}',
+      default: [],
+      hint: 'list of str',
       added: '0.0.0',
       sensitive: false,
       deprecated: false,
@@ -227,8 +222,9 @@
     _maria_cfg_galera_config: {
       section: '60-galera.cnf',
       key: 'maria_cfg_galera_config',
-      raw: '{{ maria_cfg_galera_config | default({}) }}',
-      role: '{{ maria_role_confd ~ "/60-galera.cnf" }}',
+      raw: '{{ maria_cfg_galera_config }}',
+      default: {},
+      role_dest: '{{ maria_role_confd ~ "/60-galera.cnf" }}',
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -238,8 +234,9 @@
     _maria_cfg_extensions: {
       section: '90-extensions.cnf',
       key: 'maria_cfg_extensions',
-      raw: '{{ maria_cfg_extensions | default({}) }}',
-      role: '{{ maria_role_confd ~ "/90-extensions.cnf" }}',
+      raw: '{{ maria_cfg_extensions }}',
+      default: [],
+      role_dest: '{{ maria_role_confd ~ "/90-extensions.cnf" }}',
       hint: 'list of dict',
       added: '0.0.0',
       sensitive: false,
@@ -249,9 +246,9 @@
     _maria_cfg_mariadb_client: {
       section: '50-mariadb-clients.cnf',
       key: 'maria_cfg_mariadb_client',
-      raw: '{{ maria_cfg_mariadb_client | default({}) }}',
-      role:  # maria_cfg_mariadb_* sections.
-        '{{ maria_role_confd ~ "/50-mariadb-clients.cnf" }}',
+      raw: '{{ maria_cfg_mariadb_client }}',
+      default: {},
+      role_dest: '{{ maria_role_confd ~ "/50-mariadb-clients.cnf" }}',
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -261,7 +258,8 @@
     _maria_cfg_mariadb_upgrade: {
       section: '50-mariadb-clients.cnf',
       key: 'maria_cfg_mariadb_upgrade',
-      raw: '{{ maria_cfg_mariadb_upgrade | default({}) }}',
+      raw: '{{ maria_cfg_mariadb_upgrade }}',
+      default: {},
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -271,7 +269,8 @@
     _maria_cfg_mariadb_admin: {
       section: '50-mariadb-clients.cnf',
       key: 'maria_cfg_mariadb_admin',
-      raw: '{{ maria_cfg_mariadb_admin | default({}) }}',
+      raw: '{{ maria_cfg_mariadb_admin }}',
+      default: {},
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -281,7 +280,8 @@
     _maria_cfg_mariadb_binlog: {
       section: '50-mariadb-clients.cnf',
       key: 'maria_cfg_mariadb_binlog',
-      raw: '{{ maria_cfg_mariadb_binlog | default({}) }}',
+      raw: '{{ maria_cfg_mariadb_binlog }}',
+      default: {},
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -291,7 +291,8 @@
     _maria_cfg_mariadb_check: {
       section: '50-mariadb-clients.cnf',
       key: 'maria_cfg_mariadb_check',
-      raw: '{{ maria_cfg_mariadb_check | default({}) }}',
+      raw: '{{ maria_cfg_mariadb_check }}',
+      default: {},
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -301,7 +302,8 @@
     _maria_cfg_mariadb_dump: {
       section: '50-mariadb-clients.cnf',
       key: 'maria_cfg_mariadb_dump',
-      raw: '{{ maria_cfg_mariadb_dump | default({}) }}',
+      raw: '{{ maria_cfg_mariadb_dump }}',
+      default: {},
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -311,7 +313,8 @@
     _maria_cfg_mariadb_import: {
       section: '50-mariadb-clients.cnf',
       key: 'maria_cfg_mariadb_import',
-      raw: '{{ maria_cfg_mariadb_import | default({}) }}',
+      raw: '{{ maria_cfg_mariadb_import }}',
+      default: {},
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -321,7 +324,8 @@
     _maria_cfg_mariadb_show: {
       section: '50-mariadb-clients.cnf',
       key: 'maria_cfg_mariadb_show',
-      raw: '{{ maria_cfg_mariadb_show | default({}) }}',
+      raw: '{{ maria_cfg_mariadb_show }}',
+      default: {},
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -331,7 +335,8 @@
     _maria_cfg_mariadb_slap: {
       section: '50-mariadb-clients.cnf',
       key: 'maria_cfg_mariadb_slap',
-      raw: '{{ maria_cfg_mariadb_slap | default({}) }}',
+      raw: '{{ maria_cfg_mariadb_slap }}',
+      default: {},
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -341,10 +346,8 @@
     _maria_cfg_mariadb_client_server: {
       section: '50-mariadb.cnf',
       key: 'maria_cfg_mariadb_client_server',
-      raw: '{{
-          maria_cfg_mariadb_client_server |
-          default({"socket": "/run/mysqld/mysqld.sock"})
-        }}',
+      raw: '{{ maria_cfg_mariadb_client_server }}',
+      default: {'socket': '/run/mysqld/mysqld.sock'},
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -354,8 +357,9 @@
     _maria_cfg_mariadb_include_confd_enable: {
       section: '50-mariadb.cnf',
       key: 'maria_cfg_mariadb_include_confd_enable',
-      raw: '{{ maria_cfg_mariadb_include_confd_enable | default(true) }}',
-      role: '!includedir /etc/mysql/conf.d/',
+      raw: '{{ maria_cfg_mariadb_include_confd_enable }}',
+      default: true,
+      role_include: '!includedir /etc/mysql/conf.d/',
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -365,9 +369,9 @@
     _maria_cfg_mariadb_include_mariadb_confd_enable: {
       section: '50-mariadb.cnf',
       key: 'maria_cfg_mariadb_include_mariadb_confd_enable',
-      raw:
-        '{{ maria_cfg_mariadb_include_mariadb_confd_enable | default(true) }}',
-      role: '{{ "!includedir " ~ maria_role_confd ~ "/" }}',
+      raw: '{{ maria_cfg_mariadb_include_mariadb_confd_enable }}',
+      default: true,
+      role_include: '{{ "!includedir " ~ maria_role_confd ~ "/" }}',
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -377,30 +381,27 @@
     _maria_cfg_server_server: {
       section: '50-server.cnf',
       key: 'maria_cfg_server_server',
-      raw: '{{ maria_cfg_server_server | default({}) }}',
-      role:  # maria_cfg_server_* sections.
-        '{{ maria_role_confd ~ "/50-server.cnf" }}',
+      raw: '{{ maria_cfg_server_server }}',
+      default: {},
+      role_dest: '{{ maria_role_confd ~ "/50-server.cnf" }}',
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
       deprecated: false,
       order: 1,
     }
-    # noqa jinja[spacing] suggested formatting is unreadable.
     _maria_cfg_server_mariadb: {
       section: '50-server.cnf',
       key: 'maria_cfg_server_mariadb',
-      raw: '{{
-          maria_cfg_server_mariadb |
-          default([{"version": "all",
-                    "config": {
-                        "pid_file": "/run/mysqld/mysqld.pid",
-                        "basedir": "/usr",
-                        "bind_address": "127.0.0.1",
-                        "expire_logs_days": 10,
-                    }}])
-        }}',
-      role: [],  # (version specific configs) Update after initial set.
+      raw: '{{ maria_cfg_server_mariadb }}',
+      default: [{'version': 'all',
+                 'config': {
+                   'pid_file': '/run/mysqld/mysqld.pid',
+                   'basedir': '/usr',
+                   'bind_address': '127.0.0.1',
+                   'expire_logs_days': 10,
+                 }}],
+      role_versioned_configs: [],
       hint: 'list of dict',
       added: '0.0.0',
       sensitive: false,
@@ -410,7 +411,8 @@
     _maria_cfg_server_embedded: {
       section: '50-server.cnf',
       key: 'maria_cfg_server_embedded',
-      raw: '{{ maria_cfg_server_embedded | default({}) }}',
+      raw: '{{ maria_cfg_server_embedded }}',
+      default: {},
       hint: 'dict',
       added: '0.0.0',
       sensitive: false,
@@ -420,8 +422,9 @@
     _maria_cfg_databases: {
       section: 'databases',
       key: '',
-      raw: '{{ maria_cfg_databases | default([]) }}',
-      hint: 'list',
+      raw: '{{ maria_cfg_databases }}',
+      default: [],
+      hint: 'list of dict',
       added: '0.0.0',
       sensitive: true,
       deprecated: false,
@@ -430,7 +433,8 @@
     _maria_cfg_databases_backup_enable: {
       section: 'databases',
       key: '',
-      raw: '{{ maria_cfg_databases_backup_enable | default(true) }}',
+      raw: '{{ maria_cfg_databases_backup_enable }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -440,7 +444,8 @@
     _maria_cfg_databases_backup_all_enable: {
       section: 'databases',
       key: '',
-      raw: '{{ maria_cfg_databases_backup_all_enable | default(true) }}',
+      raw: '{{ maria_cfg_databases_backup_all_enable }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -450,8 +455,8 @@
     _maria_cfg_databases_backup_individual_enable: {
       section: 'databases',
       key: '',
-      raw:
-        '{{ maria_cfg_databases_backup_individual_enable | default(true) }}',
+      raw: '{{ maria_cfg_databases_backup_individual_enable }}',
+      default: true,
       hint: 'bool',
       added: '0.0.0',
       sensitive: false,
@@ -461,10 +466,9 @@
     _maria_cfg_databases_backup_dir: {
       section: 'databases',
       key: '',
-      raw: '{{
-          maria_cfg_databases_backup_dir | default("/var/lib/maria_backup")
-        }}',
-      role: '{{ maria_role_confd ~ "/maria_backup" }}',
+      raw: "{{ maria_cfg_databases_backup_dir | regex_replace('\\/$', '') }}",
+      default: '/var/lib/maria_backup',
+      role_dest: '{{ maria_role_confd ~ "/maria_backup" }}',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -474,7 +478,8 @@
     _maria_cfg_databases_backup_owner: {
       section: 'databases',
       key: '',
-      raw: '{{ maria_cfg_databases_backup_owner | default("root") }}',
+      raw: '{{ maria_cfg_databases_backup_owner }}',
+      default: 'root',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -484,7 +489,8 @@
     _maria_cfg_databases_backup_group: {
       section: 'databases',
       key: '',
-      raw: '{{ maria_cfg_databases_backup_group | default("root") }}',
+      raw: '{{ maria_cfg_databases_backup_group }}',
+      default: 'root',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -494,7 +500,8 @@
     _maria_cfg_databases_backup_schedule: {
       section: 'databases',
       key: '',
-      raw: '{{ maria_cfg_databases_backup_schedule | default("weekly") }}',
+      raw: '{{ maria_cfg_databases_backup_schedule }}',
+      default: 'weekly',
       hint: 'str',
       added: '0.0.0',
       sensitive: false,
@@ -504,12 +511,10 @@
     _maria_cfg_databases_backup_options: {
       section: 'databases',
       key: '',
-      raw: '{{
-          maria_cfg_databases_backup_options |
-          default(["--routines", "--events", "--triggers", "--complete-insert",
-                   "--create-options", "--single-transaction"])
-        }}',
-      role: '',  # (option string) Update after initial set.
+      raw: '{{ maria_cfg_databases_backup_options }}',
+      default: ["--routines", "--events", "--triggers", "--complete-insert",
+                "--create-options", "--single-transaction"],
+      role_options: '{{ maria_cfg_databases_backup_options | join(" ") }}',
       hint: 'list of str',
       added: '0.0.0',
       sensitive: true,
@@ -519,27 +524,22 @@
     _maria_cfg_users: {
       section: 'users',
       key: '',
-      raw: '{{ maria_cfg_users | default([]) }}',
-      hint: 'list',
+      raw: '{{ maria_cfg_users }}',
+      default: [],
+      hint: 'list of dict',
       added: '0.0.0',
       sensitive: true,
       deprecated: false,
       order: 1,
     }
 
-- name: 'Annotate | update annotations with results'
-  ansible.builtin.set_fact:
-    _maria_cfg_databases_backup_options: '{{
-        _maria_cfg_databases_backup_options |
-        combine({"role": _maria_cfg_databases_backup_options.raw | join(" ")})
-      }}'
-
 - name: 'Annotate | generate version specific configs'
   ansible.builtin.set_fact:
     _maria_cfg_server_mariadb: '{{
         _maria_cfg_server_mariadb |
-        combine({"role": _maria_cfg_server_mariadb.role | default([]) +
-                 [item.config | default({})]})
+        combine({"role_versioned_configs":
+                 _maria_cfg_server_mariadb.role_versioned_configs |
+                 default([]) + [item.config | default({})]})
       }}'
   loop: '{{ _maria_cfg_server_mariadb.raw }}'
   loop_control:
@@ -551,7 +551,7 @@
       dbs: '{{
           ([_maria_cfg_mariadb_client_server.raw.datadir | default("")] +
            [_maria_cfg_server_server.raw.datadir | default("")] +
-            _maria_cfg_server_mariadb.role +
+            _maria_cfg_server_mariadb.role_versioned_configs +
            [_maria_server_embedded.raw.datadir | default("")]) |
                flatten | unique | reject("equalto", "")
         }}'

@@ -5,10 +5,10 @@
 {%   endfor %}
 {% endif %}
 {% if _maria_cfg_mariadb_include_confd_enable.raw %}
-{{ _maria_cfg_mariadb_include_confd_enable.role }}
+{{ _maria_cfg_mariadb_include_confd_enable.role_include }}
 {% endif %}
 {% if _maria_cfg_mariadb_include_mariadb_confd_enable.raw %}
-{{ _maria_cfg_mariadb_include_mariadb_confd_enable.role }}
+{{ _maria_cfg_mariadb_include_mariadb_confd_enable.role_include }}
 {% endif %}
 {% if _maria_cfg_encryption_enable.raw %}
 [mariadb]

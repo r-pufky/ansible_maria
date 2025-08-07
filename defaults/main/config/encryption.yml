@@ -43,7 +43,7 @@ maria_cfg_encryption_enable: false
 # Path to encryption files.
 #
 # Sourced from ansible controller; automatically placed in
-# {{ maria_role_confd }}/encryption/ with correct permissions. Be sure to set
+# {{ maria_role_confd }}/encryption with correct permissions. Be sure to set
 # appropriate paths for MariaDB configuration settings.
 #
 # maria_cfg_encryption_path: 'host_vars/db.example.com/data/encryption'

@@ -32,21 +32,21 @@
 - name: 'Initialize | manage {{ _maria_init_db_data_dir }}'
   ansible.builtin.file:
     path: '{{ _maria_init_db_data_dir }}'
-    owner: '{{ _maria_srv_user.parsed }}'
-    group: '{{ _maria_srv_group.parsed }}'
+    owner: '{{ _maria_srv_user.role_uid }}'
+    group: '{{ _maria_srv_group.role_gid }}'
     mode: '0755'
     state: 'directory'
-  become: '{{ true if _maria_srv_user_data_manage_enable.raw else omit }}'
+  become: true
   become_user: '{{
-      _maria_srv_user.raw if _maria_srv_user_data_manage_enable.raw else omit
+      _maria_srv_user.raw if _maria_srv_user_data_manage_enable.raw else "root"
     }}'
 
 - name: 'Initialize | check data directory initialization'
   ansible.builtin.stat:
     path: '{{ _maria_init_db_data_dir }}/mysql'
-  become: '{{ true if _maria_srv_user_data_manage_enable.raw else omit }}'
+  become: true
   become_user: '{{
-      _maria_srv_user.raw if _maria_srv_user_data_manage_enable.raw else omit
+      _maria_srv_user.raw if _maria_srv_user_data_manage_enable.raw else "root"
     }}'
   register: _maria_init_data
 

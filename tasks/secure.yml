@@ -34,7 +34,8 @@
     check_implicit_admin: true
     column_case_sensitive: true
     state: 'present'
-  no_log: true  # passwords
+    # TODO(role): disabled until future ansible data tagging update.
+    # no_log: true  # passwords
 
 - name: 'Secure | update /root/.my.cnf'
   ansible.builtin.template:
@@ -43,7 +44,8 @@
     owner: 'root'
     group: 'root'
     mode: '0400'
-  no_log: true  # passwords
+    # TODO(role): disabled until future ansible data tagging update.
+    # no_log: true  # passwords
 
 # remove_remote_root()
 - name: 'Secure | delete remote root users'

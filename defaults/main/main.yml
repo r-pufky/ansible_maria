@@ -40,7 +40,7 @@ maria_srv_version: '11.rolling'
 # Path to MariaDB certificates.
 #
 # Sourced from ansible controller; automatically placed in
-# {{ maria_role_confd }}/certs/ with correct permissions. Be sure to set
+# {{ maria_role_confd }}/certs with correct permissions. Be sure to set
 # appropriate paths for MariaDB configuration settings.
 #
 # maria_srv_certs_path: 'host_vars/db.example.com/data/certs'
