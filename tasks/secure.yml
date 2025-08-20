@@ -84,6 +84,10 @@
 - name: 'Secure | SECURITY NOTIFICATION ⚠'
   ansible.builtin.debug:
     msg: |
-      ⚠ Installation secured. May manually re-run with:
-
-        /usr/bin/mariadb-secure-installation
+      ╭───────────────────────────────────────────────────────────────────╮
+      │                                                                   │
+      │                       Installation secured.                       │
+      │                                                                   │
+      │        Manually run: /usr/bin/mariadb-secure-installation         │
+      │                                                                   │
+      ╰───────────────────────────────────────────────────────────────────╯
