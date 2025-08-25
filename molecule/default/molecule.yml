@@ -66,19 +66,19 @@ provisioner:
             encoding: 'utf8'
             state: 'present'
     host_vars:
-      maria-debian-12-user_data:
+      maria-debian-13-user_data:
         maria_srv_user_data_manage_enable: true
         maria_cfg_databases_backup_dir: '/srv/backup'
 platforms:
-  - name: 'maria-debian-12-default'
-    image: 'ghcr.io/hifis-net/debian-systemd:12'
+  - name: 'maria-debian-13-default'
+    image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
     command: '/lib/systemd/systemd'
     pre_build_image: true
-  - name: 'maria-debian-12-user_data'
-    image: 'ghcr.io/hifis-net/debian-systemd:12'
+  - name: 'maria-debian-13-user_data'
+    image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'

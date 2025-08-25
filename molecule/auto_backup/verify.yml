@@ -12,7 +12,12 @@
         that:
           - '"mariadb.service" in ansible_facts.services'
           - 'ansible_facts["services"]["mariadb.service"]["state"] == "running"'  # yamllint disable-line rule:line-length
-        fail_msg: '✘ mariadb.service should be enabled and running.'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │          mariadb.service should be enabled and running.           │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
     - name: 'Verify database | query skeleton database'
       community.mysql.mysql_query:
@@ -25,7 +30,12 @@
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
-        fail_msg: '✘ skeleton database should have been created.'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │            skeleton database should have been created.            │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
     - name: 'Verify database | query skeleton.backup table'
       community.mysql.mysql_query:
@@ -38,13 +48,17 @@
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
-        fail_msg: >
-          ✘ skeleton.backup table should exist
-          (skeleton should have been imported from auto backup).
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                skeleton.backup table should exist.                │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ skeleton should have been imported from auto backup.
 
 # Systemd services tested in r_pufky.deb.systemd.
 - name: 'Verify backup disabled'
-  hosts: 'maria-debian-12-auto_backup-disable'
+  hosts: 'maria-debian-13-auto_backup-disable'
   gather_facts: false
   tasks:
     - name: >

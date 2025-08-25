@@ -12,7 +12,12 @@
         that:
           - '"mariadb.service" in ansible_facts.services'
           - 'ansible_facts["services"]["mariadb.service"]["state"] == "running"'  # yamllint disable-line rule:line-length
-        fail_msg: '✘ mariadb.service should be enabled and running.'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │          mariadb.service should be enabled and running.           │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
     - name: 'Verify | /etc/mysql/mariadb.cnf'
       ansible.builtin.include_role:

@@ -23,8 +23,8 @@
 # * https://mariadb.com/docs/release-notes/community-server
 
 # Last time MariaDB options were validated against a default configuration.
-maria_role_validate_date: '2025-03-11'
-maria_role_validate_release: 'bookworm'
+maria_role_validate_date: '2025-08-25'
+maria_role_validate_release: 'trixie'
 maria_role_validate_version: '11.rolling'
 
 maria_role_socket: '/run/mysqld/mysqld.sock'
@@ -53,7 +53,7 @@ maria_role_apt_sources:
         "/debian"
       }}'
     suites:
-      - 'bookworm'
+      - 'trixie'
     components:
       - 'main'
     signed_by: 'https://mariadb.org/mariadb_release_signing_key.pgp'

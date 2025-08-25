@@ -55,8 +55,8 @@ provisioner:
         maria_cfg_mariadb_slap:
           socket: '/run/mysqld/mysqld.sock'
 platforms:
-  - name: 'maria-debian-12-all_options'
-    image: 'ghcr.io/hifis-net/debian-systemd:12'
+  - name: 'maria-debian-13-all_options'
+    image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'

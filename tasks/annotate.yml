@@ -42,21 +42,6 @@
 # * https://mariadb.com/docs/server/reference/full-list-of-mariadb-options-system-and-status-variables
 # yamllint enable rule:line-length
 
-# TODO(17+): Remove variable renaming check on next major nzbget release.
-- name: 'Annotate | check deprecated variable usage'
-  when: >
-    hostvars[inventory_hostname] | dict2items |
-    selectattr("key", "match", "maria_config_*") | length > 0 or
-    hostvars[inventory_hostname] | dict2items |
-    selectattr("key", "match", "maria_service_*") | length > 0
-  ansible.builtin.fail:
-    _msg: |
-      ✘ Role variables have migrated. Read defaults and update.
-
-      maria_config_* -> maria_cfg_*
-      maria_service_* -> maria_srv_*
-      maria_* -> maria_srv_*
-
 - name: 'Annotate | sanitize & annotate service defaults'
   ansible.builtin.set_fact:
     _maria_srv_version: {

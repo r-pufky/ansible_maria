@@ -51,8 +51,8 @@ provisioner:
                 'FILE:/etc/mysql/mariadb.conf.d/encryption/keyfile.key'
               file_key_management_encryption_algorithm: 'AES_CTR'
 platforms:
-  - name: 'maria-debian-12-encryption'
-    image: 'ghcr.io/hifis-net/debian-systemd:12'
+  - name: 'maria-debian-13-encryption'
+    image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'

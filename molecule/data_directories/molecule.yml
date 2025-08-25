@@ -66,8 +66,8 @@ provisioner:
             encoding: 'utf8'
             state: 'present'
 platforms:
-  - name: 'maria-debian-12-data_directories'
-    image: 'ghcr.io/hifis-net/debian-systemd:12'
+  - name: 'maria-debian-13-data_directories'
+    image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'

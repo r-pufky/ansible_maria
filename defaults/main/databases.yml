@@ -248,7 +248,7 @@ maria_cfg_databases_backup_schedule: 'weekly'
 #   - '--single-transaction'
 #
 # Reference:
-# * https://manpages.debian.org/bookworm/mariadb-client/mariadb-dump.1.en.html
+# * https://manpages.debian.org/trixie/mariadb-client/mariadb-dump.1.en.html
 maria_cfg_databases_backup_options:
   - '--routines'
   - '--events'

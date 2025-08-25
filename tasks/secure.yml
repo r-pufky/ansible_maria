@@ -88,6 +88,5 @@
       │                                                                   │
       │                       Installation secured.                       │
       │                                                                   │
-      │        Manually run: /usr/bin/mariadb-secure-installation         │
-      │                                                                   │
-      ╰───────────────────────────────────────────────────────────────────╯
+      ├───────────────────────────────────────────────────────────────────╯
+      │ Manually run with: /usr/bin/mariadb-secure-installation

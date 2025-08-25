@@ -37,15 +37,15 @@ provisioner:
               db_import:
                 enable: true
 platforms:
-  - name: 'maria-debian-12-auto_backup'
-    image: 'ghcr.io/hifis-net/debian-systemd:12'
+  - name: 'maria-debian-13-auto_backup'
+    image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
     command: '/lib/systemd/systemd'
     pre_build_image: true
-  - name: 'maria-debian-12-auto_backup-disable'
-    image: 'ghcr.io/hifis-net/debian-systemd:12'
+  - name: 'maria-debian-13-auto_backup-disable'
+    image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'

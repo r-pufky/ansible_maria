@@ -12,7 +12,12 @@
         that:
           - '"mariadb.service" in ansible_facts.services'
           - 'ansible_facts["services"]["mariadb.service"]["state"] == "running"'  # yamllint disable-line rule:line-length
-        fail_msg: '✘ mariadb.service should be enabled and running.'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │          mariadb.service should be enabled and running.           │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
     - name: 'Verify database | query test1 user'
       community.mysql.mysql_query:
@@ -25,7 +30,12 @@
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
-        fail_msg: '✘ test1@% should have been created.'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                 test1@% should have been created.                 │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
     - name: 'Verify database | query test2 user'
       community.mysql.mysql_query:
@@ -38,7 +48,12 @@
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
-        fail_msg: '✘ test2@% should have been created.'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                 test2@% should have been created.                 │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
     - name: 'Verify database | query skeleton database'
       community.mysql.mysql_query:
@@ -51,7 +66,12 @@
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
-        fail_msg: '✘ skeleton database should have been created.'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │            skeleton database should have been created.            │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
     - name: 'Verify database | query skeleton.default table'
       community.mysql.mysql_query:
@@ -64,9 +84,13 @@
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
-        fail_msg: >
-          ✘ skeleton.default table should exist
-          (skeleton.modified should not have been imported).
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │               skeleton.default table should exist.                │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ skeleton.modified should not have been imported.
 
     - name: 'Verify database | query empty database'
       community.mysql.mysql_query:
@@ -79,7 +103,12 @@
       ansible.builtin.assert:
         quiet: true
         that: _maria_query.rowcount[0] == 1
-        fail_msg: '✘ empty database should have been created.'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │             empty database should have been created.              │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
 - name: 'Verify config'
   hosts: 'all'
