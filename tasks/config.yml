@@ -13,8 +13,8 @@
     - name: 'Config | enable backups | set backup directory'
       ansible.builtin.file:
         path: '{{ _maria_cfg_databases_backup_dir.raw }}'
-        owner: '{{ _maria_srv_user.role_uid }}'
-        group: '{{ _maria_srv_group.role_gid }}'
+        owner: '{{ _maria_srv_user._uid }}'
+        group: '{{ _maria_srv_group._gid }}'
         mode: '0755'
         recurse: false
         state: 'directory'
@@ -28,7 +28,7 @@
     - name: 'Config | enable backups | set backup script'
       ansible.builtin.template:
         src: 'maria_backup.j2'
-        dest: '{{ _maria_cfg_databases_backup_dir.role_dest }}'
+        dest: '{{ _maria_cfg_databases_backup_dir._dest }}'
         owner: 'root'
         group: 'root'
         mode: '0700'
@@ -46,7 +46,7 @@
               requires: ['maria_backup.timer']
             service:
               type: 'simple'
-              exec_start: ['{{ _maria_cfg_databases_backup_dir.role_dest }}']
+              exec_start: ['{{ _maria_cfg_databases_backup_dir._dest }}']
             exec:
               user: 'root'
               group: 'root'
@@ -67,7 +67,7 @@
   block:
     - name: 'Config | disable backups | remove backup script'
       ansible.builtin.file:
-        dest: '{{ _maria_cfg_databases_backup_dir.role_dest }}'
+        dest: '{{ _maria_cfg_databases_backup_dir._dest }}'
         state: 'absent'
 
     - name: 'Config | disable backups | remove backup service'
@@ -86,8 +86,8 @@
 - name: 'Config | set mariadb certs'
   when: _maria_srv_certs_path.raw | length > 0
   ansible.builtin.copy:
-    src: '{{ _maria_srv_certs_path.role_src }}'
-    dest: '{{ _maria_srv_certs_path.role_dest }}'
+    src: '{{ _maria_srv_certs_path._src }}'
+    dest: '{{ _maria_srv_certs_path._dest }}'
     owner: 'root'
     group: 'root'
     mode: '0600'
@@ -97,15 +97,15 @@
 - name: 'Config | remove mariadb certs'
   when: _maria_srv_certs_path.raw | length == 0
   ansible.builtin.file:
-    dest: '{{ _maria_srv_certs_path.role_dest }}'
+    dest: '{{ _maria_srv_certs_path._dest }}'
     state: 'absent'
 
 - name: 'Config | set encryption files'
   when: _maria_cfg_encryption_path.raw | length > 0
   ansible.builtin.copy:
-    src: '{{ _maria_cfg_encryption_path.role_src }}'
-    dest: '{{ _maria_cfg_encryption_path.role_dest }}'
-    owner: '{{ _maria_srv_user.role_uid }}'
+    src: '{{ _maria_cfg_encryption_path._src }}'
+    dest: '{{ _maria_cfg_encryption_path._dest }}'
+    owner: '{{ _maria_srv_user._uid }}'
     group: 'root'
     mode: '0600'
     directory_mode: '0755'
@@ -114,7 +114,7 @@
 - name: 'Config | remove encryption files'
   when: _maria_cfg_encryption_path.raw | length == 0
   ansible.builtin.file:
-    dest: '{{ _maria_cfg_encryption_path.role_dest }}'
+    dest: '{{ _maria_cfg_encryption_path._dest }}'
     state: 'absent'
 
 - name: 'Config | set mariadb.cnf'
@@ -131,7 +131,7 @@
     _maria_cfg_client_only.raw | length > 0
   ansible.builtin.template:
     src: 'client.cnf.j2'
-    dest: '{{ _maria_cfg_client_all.role_dest }}'
+    dest: '{{ _maria_cfg_client_all._dest }}'
     owner: 'root'
     group: 'root'
     mode: '0644'
@@ -141,7 +141,7 @@
     _maria_cfg_client_all.raw | length == 0 and
     _maria_cfg_client_only.raw | length == 0
   ansible.builtin.file:
-    path: '{{ _maria_cfg_client_all.role_dest }}'
+    path: '{{ _maria_cfg_client_all._dest }}'
     state: 'absent'
 
 - name: 'Config | set 50-mariadb-clients.cnf'
@@ -157,7 +157,7 @@
     _maria_cfg_mariadb_slap.raw | length > 0
   ansible.builtin.template:
     src: 'mariadb-clients.cnf.j2'
-    dest: '{{ _maria_cfg_mariadb_client.role_dest }}'
+    dest: '{{ _maria_cfg_mariadb_client._dest }}'
     owner: 'root'
     group: 'root'
     mode: '0644'
@@ -174,7 +174,7 @@
     _maria_cfg_mariadb_show.raw | length == 0 and
     _maria_cfg_mariadb_slap.raw | length == 0
   ansible.builtin.file:
-    path: '{{ _maria_cfg_mariadb_client.role_dest }}'
+    path: '{{ _maria_cfg_mariadb_client._dest }}'
     state: 'absent'
 
 - name: 'Config | set 50-server.cnf'
@@ -184,7 +184,7 @@
     _maria_cfg_server_embedded.raw | length > 0
   ansible.builtin.template:
     src: 'server.cnf.j2'
-    dest: '{{ _maria_cfg_server_server.role_dest }}'
+    dest: '{{ _maria_cfg_server_server._dest }}'
     owner: 'root'
     group: 'root'
     mode: '0644'
@@ -195,14 +195,14 @@
     _maria_cfg_server_mariadb.raw | length > 0 and
     _maria_cfg_server_embedded.raw | length > 0
   ansible.builtin.file:
-    path: '{{ _maria_cfg_server_server.role_dest }}'
+    path: '{{ _maria_cfg_server_server._dest }}'
     state: 'absent'
 
 - name: 'Config | set 60-galera.cnf'
   when: _maria_cfg_galera_config.raw | length > 0
   ansible.builtin.template:
     src: 'galera.cnf.j2'
-    dest: '{{ _maria_cfg_galera_config.role_dest }}'
+    dest: '{{ _maria_cfg_galera_config._dest }}'
     owner: 'root'
     group: 'root'
     mode: '0644'
@@ -210,14 +210,14 @@
 - name: 'Config | remove 60-galera.cnf'
   when: _maria_cfg_galera_config.raw | length == 0
   ansible.builtin.file:
-    path: '{{ _maria_cfg_galera_config.role_dest }}'
+    path: '{{ _maria_cfg_galera_config._dest }}'
     state: 'absent'
 
 - name: 'Config | set 90-extensions.cnf'
   when: _maria_cfg_extensions.raw | length > 0
   ansible.builtin.template:
     src: 'extensions.cnf.j2'
-    dest: '{{ _maria_cfg_extensions.role_dest }}'
+    dest: '{{ _maria_cfg_extensions._dest }}'
     owner: 'root'
     group: 'root'
     mode: '0644'
@@ -225,7 +225,7 @@
 - name: 'Config | remove 90-extensions.cnf'
   when: _maria_cfg_extensions.raw | length == 0
   ansible.builtin.file:
-    path: '{{ _maria_cfg_extensions.role_dest }}'
+    path: '{{ _maria_cfg_extensions._dest }}'
     state: 'absent'
 
 - name: 'Config | initialize data directories'

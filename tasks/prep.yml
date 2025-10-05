@@ -8,9 +8,9 @@
 - name: 'Prep | set debconf postrm_remove_databases'
   ansible.builtin.debconf:
     name: 'mariadb-server'
-    question: '{{ _maria_srv_purge_enable.role_question }}'
+    question: '{{ _maria_srv_purge_enable._question }}'
     vtype: 'boolean'
-    value: '{{ _maria_srv_purge_enable.role_value }}'
+    value: '{{ _maria_srv_purge_enable._value }}'
 
 - name: 'Prep | manage users'
   when: _maria_srv_create_user.raw
@@ -32,9 +32,9 @@
   ansible.builtin.set_fact:
     _maria_srv_user: '{{
         _maria_srv_user |
-        combine({"role_uid": _maria_srv_user_query.uid})
+        combine({"_uid": _maria_srv_user_query.uid})
       }}'
     _maria_srv_group: '{{
         _maria_srv_group |
-        combine({"role_gid": _maria_srv_user_query.group})
+        combine({"_gid": _maria_srv_user_query.group})
       }}'

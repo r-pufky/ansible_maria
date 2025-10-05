@@ -32,8 +32,8 @@
 - name: 'Initialize | manage {{ _maria_init_db_data_dir }}'
   ansible.builtin.file:
     path: '{{ _maria_init_db_data_dir }}'
-    owner: '{{ _maria_srv_user.role_uid }}'
-    group: '{{ _maria_srv_group.role_gid }}'
+    owner: '{{ _maria_srv_user._uid }}'
+    group: '{{ _maria_srv_group._gid }}'
     mode: '0755'
     state: 'directory'
   become: true
