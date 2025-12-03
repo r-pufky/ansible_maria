@@ -85,7 +85,7 @@
 #         Default: 0.
 #     name: str or list of str - Name of the database to add or remove.
 #         Special Case:
-#              all: Only used with state=dump|import; works like –all-databases
+#              all: Only used with state=dump|import; works like -all-databases
 #                   option for mysqldump.
 #           {LIST}: Use list when state=dump|present|absent.
 #     pipefail: bool - Use bash instead of sh?
@@ -239,7 +239,10 @@ maria_cfg_databases_backup_schedule: 'weekly'
 
 # List of mariadb-dump options for backing up databases.
 #
+# All options (user/password or auth file) must be specified.
+#
 # Default:
+#   - '--defaults-file=/root/.my.cnf'
 #   - '--routines'
 #   - '--events'
 #   - '--triggers'
@@ -250,6 +253,7 @@ maria_cfg_databases_backup_schedule: 'weekly'
 # Reference:
 # * https://manpages.debian.org/trixie/mariadb-client/mariadb-dump.1.en.html
 maria_cfg_databases_backup_options:
+  - '--defaults-file=/root/.my.cnf'
   - '--routines'
   - '--events'
   - '--triggers'

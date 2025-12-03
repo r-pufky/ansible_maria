@@ -50,7 +50,8 @@ maria_srv_certs_path: ''
 
 # MariaDB local root password.
 #
-# Role uses this account to manage MariaDB via local socket.
+# Role uses this account to manage MariaDB via local socket. Locked down in
+# /root/.my.cnf.
 #
 # Password is automatically set and updated on role application for:
 # * root@localhost

@@ -11,7 +11,7 @@ OPTIONS='{{ _maria_cfg_databases_backup_options._options }}'
 
 function dump_all () {
   DUMP="${TARGET}/all-databases-${DATE_STAMP}.sql"
-  /usr/bin/mariadb-dump -u root -p ${OPTIONS} --all-databases > "${DUMP}"
+  /usr/bin/mariadb-dump ${OPTIONS} --all-databases > "${DUMP}"
   chown ${OWNER}:${GROUP} "${DUMP}"
   chmod o-rwx "${DUMP}"
   ln -sf "${DUMP}" "${TARGET}/all-databases-latest.sql"
@@ -22,7 +22,7 @@ function dump_all () {
 function dump_dbs () {
   /usr/bin/mariadb -N -e 'show databases' | while read db; do
     DUMP="${TARGET}/${db}-${DATE_STAMP}.sql"
-    /usr/bin/mariadb-dump -u root -p ${OPTIONS} "${db}" > "${DUMP}"
+    /usr/bin/mariadb-dump ${OPTIONS} "${db}" > "${DUMP}"
     chown ${OWNER}:${GROUP} "${DUMP}"
     chmod o-rwx "${DUMP}"
     ln -sf "${DUMP}" "${TARGET}/${db}-latest.sql"
