@@ -20,7 +20,7 @@ All ports and protocols have been defined for the role.
 Read defaults documentation. All options are supported.
 maria-secure-installation is always run.
 
-[Additional documentation](http://r-pufky.github.io/r-pufky/docs/service/mariadb).
+[Additional documentation](http://r-pufky.github.io/docs/service/mariadb).
 
 ### Setup MariaDB, create user, create database, enable backups.
 host_vars/db.example.com/vars/maria.yml
