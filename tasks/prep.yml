@@ -1,40 +1,98 @@
 ---
 ###############################################################################
-# Maria Prep
+#  Pre Execution Tasks
 ###############################################################################
-# Set debconf data deletion policy, create user if needed and determine UID/GID
-# for potential remote filesystems.
+# Only use data annotations in role after merging role, defaults, runtime data.
+# Service may not exist if first install.
 
-- name: 'Prep | set debconf postrm_remove_databases'
-  ansible.builtin.debconf:
-    name: 'mariadb-server'
-    question: '{{ _maria_srv_purge_enable._question }}'
-    vtype: 'boolean'
-    value: '{{ _maria_srv_purge_enable._value }}'
+- name: 'Prep | fact | record start time'
+  ansible.builtin.set_fact:
+    maria__srv: "{{ maria___release | r_pufky.data.v3(
 
-- name: 'Prep | manage users'
-  when: _maria_srv_create_user.raw
-  ansible.builtin.include_role:
-    name: 'r_pufky.deb.users'
-    tasks_from: 'role_account_add.yml'
-  vars:
-    users_role_user: '{{ maria_role_user }}'
-    users_role_group: '{{ maria_role_group }}'
+        _start=now(utc=True, fmt='%Y-%m-%dT%H%M%S'),
+        _password=maria_srv_password,
+        _cfg=maria_srv_cfg,
+        _conf_d=maria_srv_conf_d | regex_replace('\\/$', ''),
+        _secure_conf_d=maria_srv_secure_conf_d | regex_replace('\\/$', ''),
+        _user=maria_srv_user,
+        _group=maria_srv_group,
+      ) }}"
+    maria__cfg: "{{ {} | r_pufky.data.v3(
 
-- name: 'Prep | enumerate system user {{ _maria_srv_user.raw }}'
+        _version=maria_srv_version,
+        _dbs=maria_cfg_dbs,
+        _users=maria_cfg_users,
+
+        _backup_all=maria_cfg_backup_all,
+        _backup_individual=maria_cfg_backup_individual,
+        _backup_d=maria_cfg_backup_d | regex_replace('\\/$', ''),
+        _backup_owner=maria_cfg_backup_owner,
+        _backup_group=maria_cfg_backup_group,
+        _backup_schedule=maria_cfg_backup_schedule,
+        _backup_opts=maria_cfg_backup_opts | join(' '),
+      ) }}"
+
+- name: 'Prep | assert | config enabled and source defined'
+  when: maria_flg_config
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - maria__srv._cfg | length > 0
+    fail_msg: |
+
+      ✘ Config source not set.
+      Config source enabled but no config source defined.
+
+      maria_flg_config: {{ maria_flg_config }}
+      maria_srv_cfg: {{ maria__srv._cfg }}
+
+- name: '{{ "Prep | account | query user " ~ maria__srv._user }}'
+  ansible.builtin.command: '{{ "id " ~ maria__srv._user }}'
+  failed_when: false
+  register: maria__cfg_check
+  changed_when: maria__cfg_check.rc > 0
+
+- name: '{{ "Prep | account | query group " ~ maria__srv._group }}'
+  ansible.builtin.command: '{{ "groups " ~ maria__srv._group }}'
+  failed_when: false
+  register: maria__group_check
+  changed_when: maria__group_check.rc > 0
+
+- name: '{{ "Prep | account | create group " ~ maria__srv._group }}'
+  when: maria__group_check.rc != 0
+  ansible.builtin.group:
+    gid: '{{ maria___group.gid }}'
+    name: '{{ maria___group.name }}'
+    state: 'present'
+
+- name: '{{ "Prep | account | create user " ~ maria__srv._user }}'
+  when: maria__cfg_check.rc != 0
   ansible.builtin.user:
-    name: '{{ _maria_srv_user.raw }}'
+    name: '{{ maria___user.name }}'
+    group: '{{ maria___user.group }}'
+    uid: '{{ maria___user.uid }}'
+    shell: '{{ maria___user.shell }}'
+    home: '{{ maria___user.home }}'
+    create_home: '{{ maria___user.create_home }}'
+    password: '{{ maria___user.password }}'
+    password_lock: '{{ maria___user.password_lock }}'
+    update_password: '{{ maria___user.update_password }}'
+    expires: '{{ maria___user.expires }}'
+    system: '{{ maria___user.system }}'
+
+# Pre-existing users may have a different UID/GID/Home.
+- name: '{{ "Prep | account | enumerate " ~ maria__srv._user }}'
+  ansible.builtin.user:
+    name: '{{ maria__srv._user }}'
   check_mode: true
   changed_when: false
-  register: _maria_srv_user_query
+  register: maria__cfg_query
 
-- name: 'Prep | parse system user UID/GID'
+- name: 'Prep | fact | parse service UID/GID'
   ansible.builtin.set_fact:
-    _maria_srv_user: '{{
-        _maria_srv_user |
-        combine({"_uid": _maria_srv_user_query.uid})
-      }}'
-    _maria_srv_group: '{{
-        _maria_srv_group |
-        combine({"_gid": _maria_srv_user_query.group})
-      }}'
+    maria__cfg: "{{ maria__cfg | r_pufky.data.v3(
+
+        _uid=maria__cfg_query.uid,
+        _gid=maria__cfg_query.group,
+        _home=maria__cfg_query.home,
+      ) }}"

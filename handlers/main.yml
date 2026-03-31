@@ -1,0 +1,31 @@
+---
+###############################################################################
+# Handlers
+###############################################################################
+
+- name: 'Handlers | load maria_backup'
+  listen:
+    - 'Handlers | enable maria_backup'
+  ansible.builtin.systemd:
+    name: '{{ item }}'
+    enabled: true
+    daemon_reload: true
+  loop:
+    - 'maria_backup.service'
+    - 'maria_backup.timer'
+
+- name: 'Handlers | maria_backup.timer (tick)'
+  listen:
+    - 'Handlers | enable maria_backup'
+  ansible.builtin.systemd:
+    name: 'maria_backup.timer'
+    state: 'started'
+
+- name: 'Handlers | disable maria_backup'
+  ansible.builtin.systemd:
+    name: '{{ item }}'
+    enabled: false
+    state: 'stopped'
+  loop:
+    - 'maria_backup.service'
+    - 'maria_backup.timer'

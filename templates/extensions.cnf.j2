@@ -1,8 +1,0 @@
-{% if _maria_cfg_extensions.raw | length > 0 %}
-{%   for server in _maria_cfg_extensions.raw %}
-[{{ server.section }}]
-{%     for key, value in server.config.items() %}
-{{ key }}={{ value }}
-{%     endfor %}
-{%   endfor %}
-{% endif %}

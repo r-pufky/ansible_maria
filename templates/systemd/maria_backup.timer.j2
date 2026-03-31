@@ -1,0 +1,9 @@
+[Unit]
+Description=maria_backup.service timer.
+Requires=maria_backup.service
+
+[Timer]
+OnCalendar={{ maria__cfg._backup_schedule }}
+
+[Install]
+WantedBy=timers.target

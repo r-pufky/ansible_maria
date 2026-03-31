@@ -15,4 +15,4 @@
       ansible.builtin.include_role:
         name: 'r_pufky.srv.maria'
       vars:
-        maria_cfg_databases_backup_enable: false
+        maria_cfg_dbs_backup_enable: false

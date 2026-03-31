@@ -12,19 +12,71 @@
 # * https://computingforgeeks.com/how-to-install-mariadb-on-debian/
 # * https://github.com/geerlingguy/ansible-role-mysql
 
+- name: 'Install | filesystem | set service directories'
+  ansible.builtin.file:
+    path: '{{ maria___app._secure_conf_d }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+    state: 'directory'
+
 - name: 'Install | packages'
   ansible.builtin.include_role:
     name: 'r_pufky.deb.apt'
   vars:
     apt_packages:
-      - '{{ maria_role_packages }}'
-    apt_sources: '{{ maria_role_apt_sources }}'
-    apt_package_update_cache: true
+      - '{{ maria___packages }}'
+    apt_sources: '{{ maria___apt_sources }}'
+    apt_srv_package_update_cache: true
 
-- name: 'Install | stop services'
+- name: 'Install | systemd | stop mariadb.service'
   ansible.builtin.systemd:
-    name: '{{ item }}'
+    name: 'mariadb.service'
     state: 'stopped'
   failed_when: false
-  loop:
-    - 'mariadb.service'
+
+- name: '{{ "Install | filesystem | set minimal " ~ maria___app._cfg }}'
+  when: maria__srv._cfg | length == 0
+  ansible.builtin.template:
+    src: 'templates/default/mariadb.cnf'
+    dest: '{{ maria___app._cfg }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: '{{  "Install | filesystem | set minimal " ~ maria___app._conf_d }}'
+  when: maria__srv._conf_d | length == 0
+  block:
+    - name: '{{ "Install | filesystem | deploy " ~ maria___app._conf_d }}'
+      ansible.builtin.template:
+        src: '{{ item.src }}'
+        dest: '{{ maria___app._conf_d }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      loop: '{{
+          query("community.general.filetree",
+                "templates/default/mariadb.conf.d")
+        }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: item.state == 'file'
+      register: maria__local
+
+    - name: 'Install | filesystem | query remote files'
+      ansible.builtin.find:
+        paths: '{{ maria___app._conf_d }}'
+        file_type: 'file'
+        recurse: true
+      register: maria__remote
+
+    - name: 'Install | filesystem | remove unmanaged files'
+      ansible.builtin.file:
+        path: '{{ item.path }}'
+        state: 'absent'
+      loop: '{{ maria__remote.files }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: >
+        item.path not in maria__local.results | selectattr('dest', 'defined') |
+        map(attribute='dest') | list

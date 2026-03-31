@@ -1,0 +1,80 @@
+---
+###############################################################################
+# Init DB Data Directories
+###############################################################################
+# Create and check datadir directory before initialization. Always use /usr for
+# basedir path.
+#
+# For mounted data locations (NFS with squashed mounts, mapped container
+# mounts, etc) the local root user will not have sufficient privileges to
+# modify these files. Typically only the service user is mapped to the hosted
+# UID/GID, and all other users including root are mapped to 165536+ to prevent
+# access (appears as nobody/nogroup on opposing node). Attempt to first execute
+# user data changes with root than maria user (most expected permission first).
+#
+# Data directories are created 'insecure' to set the same default state as
+# Debian installation. These are secured in the 'secure' step after config.
+#
+# Decision: init only empty directories - Data directories containing any
+#     information are not initialized to prevent plowing of existing user data.
+#     For certain conditions where a pre-existing partially initialized (or bad
+#     database) directory is used; the role will likely fail to start the
+#     service. This requires manual user intervention.
+#
+# Args:
+#   data_dir: str - datadir location to init.
+#
+# Reference:
+# * https://mariadb.com/kb/en/mysql_install_db/
+
+- name: 'Init DB | fact | sanitize paths'
+  ansible.builtin.set_fact:
+    maria__init_db: "{{ {} | r_pufky.data.v3(
+
+        _data_d=data_dir,
+        _data_d_init=data_dir ~ '/mysql',
+      ) }}"
+
+- name: '{{ "Init DB | filesystem | set " ~ maria__init_db._data_d }}'
+  block:
+    - name: '{{ "Init DB | filesystem | set " ~ maria__init_db._data_d }}'
+      ansible.builtin.file:
+        path: '{{ maria__init_db._data_d }}'
+        owner: '{{ maria__cfg._uid }}'
+        group: '{{ maria__cfg._gid }}'
+        mode: '0755'
+        state: 'directory'
+  rescue:
+    - name: '{{ "Init DB | filesystem | set " ~ maria__init_db._data_d }}'
+      ansible.builtin.file:
+        path: '{{ maria__init_db._data_d }}'
+        owner: '{{ maria__cfg._uid }}'
+        group: '{{ maria__cfg._gid }}'
+        mode: '0755'
+        state: 'directory'
+      become: true
+      become_user: '{{ maria__srv._user }}'
+
+- name:
+    '{{  "Init DB | filesystem | query " ~ maria__init_db._data_d_init }}'
+  ansible.builtin.stat:
+    path: '{{ maria__init_db._data_d_init }}'
+  become: true
+  become_user: '{{ maria__srv._user }}'
+  register: maria__init
+
+# Run as maria_srv_user to init with correct permissions. Automatically uses
+# /etc/mysql for unspecified config options.
+- name: '{{ "Init DB | cmd | init " ~ maria__init_db._data_d }}'
+  when: not maria__init.stat.exists
+  ansible.builtin.command:
+    argv:
+      - '/usr/bin/mariadb-install-db'
+      - '--datadir'
+      - '{{ maria__init_db._data_d }}'
+      - '--skip-name-resolve'
+      - '--skip-test-db'
+  changed_when: "'already exists!' not in maria__cmd.stdout"
+  register: maria__cmd
+  become: true
+  become_user: '{{ maria__srv._user }}'

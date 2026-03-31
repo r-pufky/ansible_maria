@@ -1,15 +1,75 @@
 ---
+###############################################################################
+# Prepare
+###############################################################################
+# Generate test encryption keys with:
+#   echo -n "1;`openssl rand -hex 32`" > keyfile
+#   openssl rand -hex 128 > keyfile.key
+#   openssl enc -aes-256-cbc -md sha1 \
+#     -pass file:keyfile.key \
+#     -in keyfile \
+#     -out keyfile.enc
+#
+# Place in cache/secure.conf.d/keyfile*.
+#
+# Reference:
+# * https://mariadb.com/kb/en/file-key-management-encryption-plugin/
+
 - name: 'Prepare'
-  hosts: 'maria-debian-13-user_data'
+  hosts: 127.0.0.1
+  connection: local
   gather_facts: false
   tasks:
-    - name: 'Prepare | simulate user media restriction'
+    - name: 'Prepare | import role variables'
+      ansible.builtin.include_vars:
+        file: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~ "/vars/main.yml"
+          }}'
+
+    - name: 'Prepare | cache'
+      ansible.builtin.include_role:
+        name: 'r_pufky.data.test'
+        tasks_from: 'create_cache.yml'
+      vars:
+        test_name: 'Prepare | create cache'
+
+    - name: 'Prepare | fact | generate secure cache location'
+      ansible.builtin.set_fact:
+        maria__cache: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+            "/molecule/cache/secure.conf.d"
+          }}'
+
+    - name: '{{ "Prepare | filesystem | create " ~ maria__cache }}'
       ansible.builtin.file:
-        path: '{{ item }}'
-        owner: 301
-        group: 301
+        path: '{{ maria__cache }}'
         mode: '0755'
         state: 'directory'
-      loop:
-        - '/var/lib/mysql'
-        - '/srv'
+
+    - name: 'Prepare | cmd | generate test certificate'
+      ansible.builtin.shell:
+        'echo -n "1;$(openssl rand -hex 32)" > "{{ maria__cache }}/keyfile"'
+      args:
+        creates: '{{ maria__cache ~ "/keyfile" }}'
+
+    - name: 'Prepare | cmd | sign test certificate'
+      ansible.builtin.shell:
+        'openssl rand -hex 128 > "{{ maria__cache }}/keyfile.key"'
+      args:
+        creates: '{{ maria__cache ~ "/keyfile.key" }}'
+
+    - name: 'Prepare | cmd | pack PFX certificate'
+      ansible.builtin.command:
+        argv:
+          - 'openssl'
+          - 'enc'
+          - '-aes-256-cbc'
+          - '-md'
+          - 'sha1'
+          - '-pass'
+          - '{{ "file:" ~ maria__cache ~ "/keyfile.key" }}'
+          - '-in'
+          - '{{ maria__cache ~ "/keyfile" }}'
+          - '-out'
+          - '{{ maria__cache ~ "/keyfile.enc" }}'
+        creates: '{{ maria__cache ~ "/keyfile.enc" }}'

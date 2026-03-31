@@ -1,15 +1,26 @@
 ---
-- name: 'Annotate'
-  ansible.builtin.include_tasks: 'annotate.yml'
 - name: 'Prep'
   ansible.builtin.include_tasks: 'prep.yml'
+
 - name: 'Install'
+  when: maria_flg_install
   ansible.builtin.include_tasks: 'install.yml'
+
 - name: 'Config'
+  when: maria_flg_config
   ansible.builtin.include_tasks: 'config.yml'
+
+- name: 'Init'
+  ansible.builtin.include_tasks: 'init.yml'
+
 - name: 'Secure'
   ansible.builtin.include_tasks: 'secure.yml'
+
 - name: 'Manage'
   ansible.builtin.include_tasks: 'manage.yml'
-- name: 'Validate'
-  ansible.builtin.include_tasks: 'validate.yml'
+
+- name: 'Backup'
+  ansible.builtin.include_tasks: 'backup.yml'
+
+- name: 'Start'
+  ansible.builtin.include_tasks: 'start.yml'

@@ -37,7 +37,7 @@ provisioner:
           - name: 'test2'
             host: '%'
             password: 'test'
-        maria_cfg_databases:
+        maria_cfg_dbs:
           - name: 'skeleton'
             collation: 'utf8_unicode_520_ci'
             encoding: 'utf8'
@@ -65,19 +65,8 @@ provisioner:
             collation: 'utf8_unicode_520_ci'
             encoding: 'utf8'
             state: 'present'
-    host_vars:
-      maria-debian-13-user_data:
-        maria_srv_user_data_manage_enable: true
-        maria_cfg_databases_backup_dir: '/srv/backup'
 platforms:
-  - name: 'maria-debian-13-default'
-    image: 'ghcr.io/hifis-net/debian-systemd:13'
-    systemd: 'always'
-    volumes:
-      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
-    command: '/lib/systemd/systemd'
-    pre_build_image: true
-  - name: 'maria-debian-13-user_data'
+  - name: 'maria-default'
     image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
@@ -86,21 +75,12 @@ platforms:
     pre_build_image: true
 verifier:
   name: 'ansible'
-lint: |
-  set -e
-  yamllint .
-  ansible-lint .
 scenario:
   test_sequence:
-    # - 'dependency'
-    # - 'cleanup'
     - 'destroy'
     - 'syntax'
     - 'create'
     - 'prepare'
     - 'converge'
-    # - 'idempotence'  # systemd services.
-    # - 'side_effect'
     - 'verify'
-    # - 'cleanup'
     - 'destroy'

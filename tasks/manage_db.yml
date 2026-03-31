@@ -5,27 +5,28 @@
 # If the database is newly created, automatically attempt to import the latest
 # backup.
 #
-# Imports using maria_cfg_databases_backup_enable generate archives with a
-# single file in it; otherwise copy a single text .sql file from the controller
-# and execute import. If the import fails, cleanup the staged database.
+# Imports using maria_flg_backup generate archives with a single file in it;
+# otherwise copy a single text .sql file from the controller and execute
+# import. If the import fails, cleanup the staged database.
 #
 # Args:
-#   db: dict - maria_cfg_databases database definition.
+#   db: dict - maria_cfg_dbs database definition.
 #
 # Reference:
 # * https://semisignal.com/mysql-database-import-with-ansible/
 
-- name: 'Manage | DB | parse import options'
+- name: 'Manage DB | fact | parse import options'
   ansible.builtin.set_fact:
-    _maria_db_import_enable:
-      '{{ db.extensions.db_import.enable | default(false) }}'
-    _maria_db_import_source:
-      '{{ db.extensions.db_import.source | default("") }}'
+    maria__import_db: "{{ {} | r_pufky.data.v3(
+
+        _enable=db.extensions.db_import.enable | default(false),
+        _source=db.extensions.db_import.source | default(''),
+      ) }}"
 
 # When state=present, this will only ever create a database if it does not
 # exist (changed results) otherwise database will not be changed; safe to
 # trigger import on change.
-- name: 'Manage | DB | set {{ db.name }}'
+- name: '{{ "Manage DB | SQL | set " ~ db.name }}'
   community.mysql.mysql_db:
     ca_cert: '{{ db.ca_cert | default(omit) }}'
     chdir: '{{ db.chdir | default(omit) }}'
@@ -47,7 +48,7 @@
     login_password: '{{ db.login_password | default(omit) }}'
     login_port: '{{ db.login_port | default(3306) }}'
     login_unix_socket:
-      '{{ db.login_unix_socket | default(maria_role_socket) }}'
+      '{{ db.login_unix_socket | default(maria___app._socket) }}'
     login_user: '{{ db.login_user | default(omit) }}'
     master_data: '{{ db.master_data | default(0) }}'
     name: '{{ db.name }}'
@@ -56,40 +57,41 @@
     restrict_config_file: '{{ db.restrict_config_file | default(false) }}'
     single_transaction: '{{ db.single_transaction | default(false) }}'
     skip_lock_tables: '{{ db.skip_lock_tables | default(false) }}'
+    sql_log_bin: '{{ db.sql_log_bin | default(true) }}'
     state: '{{ db.state | default("present") }}'
     target: '{{ db.target | default(omit) }}'
     unsafe_login_password: '{{ db.unsafe_login_password | default(false) }}'
     use_shell: '{{ db.use_shell | default(false) }}'
-  register: _maria_db_created
+  register: maria__cmd
 
-- name: 'Manage | DB | import'
-  when: _maria_db_import_enable and _maria_db_created.changed
+- name: 'Manage DB | import'
+  when: maria__import_db._enable and maria__cmd.changed
   block:
-    - name: 'Manage | DB | import | copy from controller'
-      when: _maria_db_import_source | length > 0
+    - name: '{{ "Manage DB | filesystem | stage " ~ maria__import_db._source }}'
+      when: maria__import_db._source | length > 0
       ansible.builtin.copy:
-        src: '{{ _maria_db_import_source }}'
-        dest: '/tmp/maria_db_import.sql'
+        src: '{{ maria__import_db._source }}'
+        dest: '{{ maria___app._stage }}'
         owner: 'root'
         group: 'root'
         mode: '0600'
         force: true
 
-    - name: 'Manage | DB | import | copy from backups'
-      when: _maria_db_import_source | length == 0
+    - name: '{{
+          "Manage DB | filesystem | stage " ~ maria__cfg._backup_d ~ "/" ~
+          db.name ~ "-latest.sql"
+        }}'
+      when: maria__import_db._source | length == 0
       ansible.builtin.copy:
-        src: '{{
-            _maria_cfg_databases_backup_dir.raw ~ "/" ~
-            db.name ~ "-latest.sql"
-          }}'
-        dest: '/tmp/maria_db_import.sql'
+        src: '{{ maria__cfg._backup_d ~ "/" ~ db.name ~ "-latest.sql" }}'
+        dest: '{{ maria___app._stage }}'
         remote_src: true
         owner: 'root'
         group: 'root'
         mode: '0600'
         force: true
 
-    - name: 'Manage | DB | import | {{ db.name }}'
+    - name: '{{ "Manage DB | SQL | import " ~ db.name }}'
       community.mysql.mysql_db:  # noqa no-handler import DB immediately.
         ca_cert: '{{ db.ca_cert | default(omit) }}'
         chdir: '{{ db.chdir | default(omit) }}'
@@ -111,7 +113,7 @@
         login_password: '{{ db.login_password | default(omit) }}'
         login_port: '{{ db.login_port | default(3306) }}'
         login_unix_socket:
-          '{{ db.login_unix_socket | default(maria_role_socket) }}'
+          '{{ db.login_unix_socket | default(maria___app._socket) }}'
         login_user: '{{ db.login_user | default(omit) }}'
         master_data: '{{ db.master_data | default(0) }}'
         name: '{{ db.name }}'
@@ -120,13 +122,14 @@
         restrict_config_file: '{{ db.restrict_config_file | default(false) }}'
         single_transaction: '{{ db.single_transaction | default(false) }}'
         skip_lock_tables: '{{ db.skip_lock_tables | default(false) }}'
+        sql_log_bin: '{{ db.sql_log_bin | default(true) }}'
         state: 'import'
-        target: '/tmp/maria_db_import.sql'
+        target: '{{ maria___app._stage }}'
         unsafe_login_password:
           '{{ db.unsafe_login_password | default(false) }}'
         use_shell: '{{ db.use_shell | default(false) }}'
   always:
-    - name: 'Manage | DB | import | remove staged files'
+    - name: 'Manage DB | filesystem | remove staged files'
       ansible.builtin.file:
-        path: '/tmp/maria_db_import.sql'
+        path: '{{ maria___app._stage }}'
         state: 'absent'

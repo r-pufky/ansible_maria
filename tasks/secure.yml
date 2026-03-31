@@ -23,70 +23,62 @@
 # * https://www.digitalocean.com/community/tutorials/how-to-reset-your-mysql-or-mariadb-root-password
 # yamllint enable rule:line-length
 
-- name: 'Secure | set root password'
+- name: 'Secure | SQL | set root password'
   community.mysql.mysql_user:
     name: 'root'
     host_all: true  # root@*
     priv: '*.*:ALL,GRANT'
-    password: '{{ _maria_srv_password.raw }}'
-    login_password: '{{ _maria_srv_password.raw }}'
-    login_unix_socket: '{{ maria_role_socket }}'
+    password: '{{ maria__srv._password }}'
+    login_password: '{{ maria__srv._password }}'
+    login_unix_socket: '{{ maria___app._socket }}'
     check_implicit_admin: true
     column_case_sensitive: true
     state: 'present'
-    # TODO(role): disabled until future ansible data tagging update.
-    # no_log: true  # passwords
+  no_log: true  # passwords.
 
-- name: 'Secure | update /root/.my.cnf'
+- name: '{{ "Secure | filesystem | set " ~ maria___app._root_cnf }}'
   ansible.builtin.template:
     src: 'my.cnf.j2'
-    dest: '/root/.my.cnf'
+    dest: '{{ maria___app._root_cnf }}'
     owner: 'root'
     group: 'root'
     mode: '0400'
-    # TODO(role): disabled until future ansible data tagging update.
-    # no_log: true  # passwords
+  no_log: true  # passwords.
 
-# remove_remote_root()
-- name: 'Secure | delete remote root users'
+- name: 'Secure | SQL | remove_remote_root() - delete remote root users'
   community.mysql.mysql_query:
     query: "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"  # yamllint disable-line rule:line-length
     login_db: 'mysql'
-    login_unix_socket: '{{ maria_role_socket }}'
+    login_unix_socket: '{{ maria___app._socket }}'
 
-# remove_anonymous_users()
-- name: 'Secure | delete all anonymous users'
+- name: 'Secure | SQL | remove_anonymous_users() - delete all anonymous users'
   community.mysql.mysql_query:
     query: "DELETE FROM mysql.global_priv WHERE User=''"
     login_db: 'mysql'
-    login_unix_socket: '{{ maria_role_socket }}'
+    login_unix_socket: '{{ maria___app._socket }}'
 
-# remove_test_database()
-- name: 'Secure | delete test database'
+- name: 'Secure | SQL | remove_test_database() - delete test database'
   community.mysql.mysql_db:
     name: 'test'
     state: 'absent'
-    login_unix_socket: '{{ maria_role_socket }}'
+    login_unix_socket: '{{ maria___app._socket }}'
 
-- name: 'Secure | remove test database privileges'
+- name: 'Secure | SQL | remove test database privileges'
   community.mysql.mysql_query:
     query: "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'"
     login_db: 'mysql'
-    login_unix_socket: '{{ maria_role_socket }}'
+    login_unix_socket: '{{ maria___app._socket }}'
 
-# reload_privilege_tables()
-- name: 'Secure | flush privileges'
+- name: 'Secure | SQL | reload_privilege_tables() - flush privileges'
   community.mysql.mysql_query:
     query: "FLUSH PRIVILEGES"
     login_db: 'mysql'
-    login_unix_socket: '{{ maria_role_socket }}'
+    login_unix_socket: '{{ maria___app._socket }}'
 
-- name: 'Secure | SECURITY NOTIFICATION ⚠'
+- name: 'Secure | 🛈 SECURITY NOTIFICATION 🛈'
   ansible.builtin.debug:
     msg: |
-      ╭───────────────────────────────────────────────────────────────────╮
-      │                                                                   │
-      │                       Installation secured.                       │
-      │                                                                   │
-      ├───────────────────────────────────────────────────────────────────╯
-      │ Manually run with: /usr/bin/mariadb-secure-installation
+
+      🛈 Installation secured 🛈
+
+      Manually run with: /usr/bin/mariadb-secure-installation

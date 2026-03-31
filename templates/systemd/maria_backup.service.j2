@@ -1,0 +1,12 @@
+[Unit]
+Description=MariaDB backup service.
+Requires=maria_backup.timer
+
+[Service]
+Type=simple
+ExecStart={{ maria___app._backup }}
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

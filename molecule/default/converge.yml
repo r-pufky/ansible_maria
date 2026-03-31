@@ -3,6 +3,23 @@
   hosts: 'all'
   gather_facts: false
   tasks:
-    - name: 'Converge | apply r_pufky.srv.maria'
+    - name: 'Converge | role | r_pufky.srv.maria'
       ansible.builtin.include_role:
         name: 'r_pufky.srv.maria'
+
+    - name: 'Converge | role | r_pufky.srv.maria (config, backup)'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.maria'
+      vars:
+        maria_flg_backup: true
+        maria_flg_config: true
+        maria_srv_cfg: '{{
+            lookup("env", "MOLECULE_SCENARIO_DIRECTORY") ~ "/files/mariadb.cnf"
+          }}'
+        maria_srv_conf_d: '{{
+            lookup("env", "MOLECULE_SCENARIO_DIRECTORY") ~ "/files/conf.d"
+          }}'
+        maria_srv_secure_conf_d: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+            "/molecule/cache/secure.conf.d"
+          }}'

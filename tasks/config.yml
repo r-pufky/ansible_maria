@@ -2,246 +2,76 @@
 ###############################################################################
 # MariaDB Config
 ###############################################################################
-# Set database storage locations, backup script, backup service, and mariadb
-# configs before starting service.
-#
-# Service needs to be running to manage database and database users.
+# Deploy configuration files to standard directory and secured files to a
+# separately restricted directory with restricted file permissions.
 
-- name: 'Config | enable backups'
-  when: _maria_cfg_databases_backup_enable.raw
-  block:
-    - name: 'Config | enable backups | set backup directory'
-      ansible.builtin.file:
-        path: '{{ _maria_cfg_databases_backup_dir.raw }}'
-        owner: '{{ _maria_srv_user._uid }}'
-        group: '{{ _maria_srv_group._gid }}'
-        mode: '0755'
-        recurse: false
-        state: 'directory'
-      become: true
-      become_user: '{{
-          _maria_srv_user.raw
-          if _maria_srv_user_data_manage_enable.raw else
-          "root"
-        }}'
-
-    - name: 'Config | enable backups | set backup script'
-      ansible.builtin.template:
-        src: 'maria_backup.j2'
-        dest: '{{ _maria_cfg_databases_backup_dir._dest }}'
-        owner: 'root'
-        group: 'root'
-        mode: '0700'
-
-    - name: 'Config | enable backups | create backup service'
-      ansible.builtin.include_role:
-        name: 'r_pufky.deb.systemd'
-      vars:
-        systemd_services:
-          - name: 'maria_backup'
-            state: 'present'
-            drop_in: false
-            unit:
-              description: 'MariaDB backup service.'
-              requires: ['maria_backup.timer']
-            service:
-              type: 'simple'
-              exec_start: ['{{ _maria_cfg_databases_backup_dir._dest }}']
-            exec:
-              user: 'root'
-              group: 'root'
-        systemd_timers:
-          - name: 'maria_backup'
-            state: 'present'
-            drop_in: false
-            unit:
-              description: 'MariaDB backup service timer.'
-            timer:
-              unit: 'maria_backup.service'
-              on_calendar: ['{{ _maria_cfg_databases_backup_schedule.raw }}']
-            install:
-              wanted_by: ['timers.target']
-
-- name: 'Config | disable backups'
-  when: not _maria_cfg_databases_backup_enable.raw
-  block:
-    - name: 'Config | disable backups | remove backup script'
-      ansible.builtin.file:
-        dest: '{{ _maria_cfg_databases_backup_dir._dest }}'
-        state: 'absent'
-
-    - name: 'Config | disable backups | remove backup service'
-      ansible.builtin.include_role:
-        name: 'r_pufky.deb.systemd'
-      vars:
-        systemd_services:
-          - name: 'maria_backup'
-            state: 'absent'
-            drop_in: false
-        systemd_timers:
-          - name: 'maria_backup'
-            state: 'absent'
-            drop_in: false
-
-- name: 'Config | set mariadb certs'
-  when: _maria_srv_certs_path.raw | length > 0
-  ansible.builtin.copy:
-    src: '{{ _maria_srv_certs_path._src }}'
-    dest: '{{ _maria_srv_certs_path._dest }}'
-    owner: 'root'
-    group: 'root'
-    mode: '0600'
-    directory_mode: '0755'
-    force: true
-
-- name: 'Config | remove mariadb certs'
-  when: _maria_srv_certs_path.raw | length == 0
-  ansible.builtin.file:
-    dest: '{{ _maria_srv_certs_path._dest }}'
-    state: 'absent'
-
-- name: 'Config | set encryption files'
-  when: _maria_cfg_encryption_path.raw | length > 0
-  ansible.builtin.copy:
-    src: '{{ _maria_cfg_encryption_path._src }}'
-    dest: '{{ _maria_cfg_encryption_path._dest }}'
-    owner: '{{ _maria_srv_user._uid }}'
-    group: 'root'
-    mode: '0600'
-    directory_mode: '0755'
-    force: true
-
-- name: 'Config | remove encryption files'
-  when: _maria_cfg_encryption_path.raw | length == 0
-  ansible.builtin.file:
-    dest: '{{ _maria_cfg_encryption_path._dest }}'
-    state: 'absent'
-
-- name: 'Config | set mariadb.cnf'
+- name: '{{ "Config | filesystem | set " ~ maria__srv._cfg }}'
+  when: maria__srv._cfg | length > 0
   ansible.builtin.template:
-    src: 'mariadb.cnf.j2'
-    dest: '/etc/mysql/mariadb.cnf'
+    src: '{{ maria__srv._cfg }}'
+    dest: '{{ maria___app._cfg }}'
     owner: 'root'
     group: 'root'
     mode: '0644'
 
-- name: 'Config | set 50-client.cnf'
-  when: >
-    _maria_cfg_client_all.raw | length > 0 or
-    _maria_cfg_client_only.raw | length > 0
+- name: '{{ "Config | filesystem | deploy " ~ maria___app._conf_d }}'
   ansible.builtin.template:
-    src: 'client.cnf.j2'
-    dest: '{{ _maria_cfg_client_all._dest }}'
+    src: '{{ item.src }}'
+    dest: '{{ maria___app._conf_d }}'
     owner: 'root'
     group: 'root'
     mode: '0644'
-
-- name: 'Config | remove 50-client.cnf'
-  when: >
-    _maria_cfg_client_all.raw | length == 0 and
-    _maria_cfg_client_only.raw | length == 0
-  ansible.builtin.file:
-    path: '{{ _maria_cfg_client_all._dest }}'
-    state: 'absent'
-
-- name: 'Config | set 50-mariadb-clients.cnf'
-  when: >
-    _maria_cfg_mariadb_client.raw | length > 0 or
-    _maria_cfg_mariadb_upgrade.raw | length > 0 or
-    _maria_cfg_mariadb_admin.raw | length > 0 or
-    _maria_cfg_mariadb_binlog.raw | length > 0 or
-    _maria_cfg_mariadb_check.raw | length > 0 or
-    _maria_cfg_mariadb_dump.raw | length > 0 or
-    _maria_cfg_mariadb_import.raw | length > 0 or
-    _maria_cfg_mariadb_show.raw | length > 0 or
-    _maria_cfg_mariadb_slap.raw | length > 0
-  ansible.builtin.template:
-    src: 'mariadb-clients.cnf.j2'
-    dest: '{{ _maria_cfg_mariadb_client._dest }}'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-
-- name: 'Config | remove 50-mariadb-clients.cnf'
-  when: >
-    _maria_cfg_mariadb_client.raw | length == 0 and
-    _maria_cfg_mariadb_upgrade.raw | length == 0 and
-    _maria_cfg_mariadb_admin.raw | length == 0 and
-    _maria_cfg_mariadb_binlog.raw | length == 0 and
-    _maria_cfg_mariadb_check.raw | length == 0 and
-    _maria_cfg_mariadb_dump.raw | length == 0 and
-    _maria_cfg_mariadb_import.raw | length == 0 and
-    _maria_cfg_mariadb_show.raw | length == 0 and
-    _maria_cfg_mariadb_slap.raw | length == 0
-  ansible.builtin.file:
-    path: '{{ _maria_cfg_mariadb_client._dest }}'
-    state: 'absent'
-
-- name: 'Config | set 50-server.cnf'
-  when: >
-    _maria_cfg_server_server.raw | length > 0 or
-    _maria_cfg_server_mariadb.raw | length > 0 or
-    _maria_cfg_server_embedded.raw | length > 0
-  ansible.builtin.template:
-    src: 'server.cnf.j2'
-    dest: '{{ _maria_cfg_server_server._dest }}'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-
-- name: 'Config | remove 50-server.cnf'
-  when: >
-    _maria_cfg_server_server.raw | length > 0 and
-    _maria_cfg_server_mariadb.raw | length > 0 and
-    _maria_cfg_server_embedded.raw | length > 0
-  ansible.builtin.file:
-    path: '{{ _maria_cfg_server_server._dest }}'
-    state: 'absent'
-
-- name: 'Config | set 60-galera.cnf'
-  when: _maria_cfg_galera_config.raw | length > 0
-  ansible.builtin.template:
-    src: 'galera.cnf.j2'
-    dest: '{{ _maria_cfg_galera_config._dest }}'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-
-- name: 'Config | remove 60-galera.cnf'
-  when: _maria_cfg_galera_config.raw | length == 0
-  ansible.builtin.file:
-    path: '{{ _maria_cfg_galera_config._dest }}'
-    state: 'absent'
-
-- name: 'Config | set 90-extensions.cnf'
-  when: _maria_cfg_extensions.raw | length > 0
-  ansible.builtin.template:
-    src: 'extensions.cnf.j2'
-    dest: '{{ _maria_cfg_extensions._dest }}'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-
-- name: 'Config | remove 90-extensions.cnf'
-  when: _maria_cfg_extensions.raw | length == 0
-  ansible.builtin.file:
-    path: '{{ _maria_cfg_extensions._dest }}'
-    state: 'absent'
-
-- name: 'Config | initialize data directories'
-  ansible.builtin.include_tasks: 'initialize.yml'
-  vars:
-    db_config: '{{ item }}'
-  loop: '{{ _maria.dbs }}'
+  loop: '{{ query("community.general.filetree", maria__srv._conf_d) }}'
   loop_control:
-    label: '{{ item.datadir | default("/var/lib/mysql") }}'
+    label: '{{ item.path }}'
+  when: item.state == 'file'
+  register: maria__local
 
-- name: 'Config | start services'
-  ansible.builtin.systemd:
-    name: '{{ item }}'
-    enabled: true
-    daemon_reload: true
-    state: 'started'
-  failed_when: false
-  loop:
-    - 'mariadb.service'
+- name: 'Config | filesystem | query remote files'
+  ansible.builtin.find:
+    paths: '{{ maria___app._conf_d }}'
+    file_type: 'file'
+    recurse: true
+  register: maria__remote
+
+- name: 'Config | filesystem | remove unmanaged files'
+  ansible.builtin.file:
+    path: '{{ item.path }}'
+    state: 'absent'
+  loop: '{{ maria__remote.files }}'
+  loop_control:
+    label: '{{ item.path }}'
+  when: >
+    item.path not in maria__local.results | selectattr('dest', 'defined') |
+    map(attribute='dest') | list
+
+- name: '{{ "Config | filesystem | deploy " ~ maria___app._secure_conf_d }}'
+  ansible.builtin.template:
+    src: '{{ item.src }}'
+    dest: '{{ maria___app._secure_conf_d }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0640'
+  loop: '{{ query("community.general.filetree", maria__srv._secure_conf_d) }}'
+  loop_control:
+    label: '{{ item.path }}'
+  when: item.state == 'file'
+  register: maria__local
+
+- name: 'Config | filesystem | query remote files'
+  ansible.builtin.find:
+    paths: '{{ maria___app._secure_conf_d }}'
+    file_type: 'file'
+    recurse: true
+  register: maria__remote
+
+- name: 'Config | filesystem | remove unmanaged files'
+  ansible.builtin.file:
+    path: '{{ item.path }}'
+    state: 'absent'
+  loop: '{{ maria__remote.files }}'
+  loop_control:
+    label: '{{ item.path }}'
+  when: >
+    item.path not in maria__local.results | selectattr('dest', 'defined') |
+    map(attribute='dest') | list

@@ -1,0 +1,30 @@
+---
+###############################################################################
+# Init
+###############################################################################
+# All MariaDB storage locations for instances must be init'ed for DB service to
+# be successfully started for every instance. After rendering auto-generated
+# configs (or user configs), parse every datadir and initialize those
+# directories.
+#
+# Cannot use 'mariadb -N -e "SELECT @@datadir;"' as DB's are not running.
+
+# yamllint disable rule:line-length
+- name: 'Init | cmd | query datadir'
+  ansible.builtin.shell: >-
+    find /etc/mysql -type f -name "*.cnf" -exec awk -F'[[:space:]]*=[[:space:]]*' '/^datadir/ {print $2}' {} +
+  register: maria__datadirs
+  changed_when: false
+
+- name: 'Init | DB'
+  ansible.builtin.include_tasks: 'init_db.yml'
+  loop: '{{
+      maria__datadirs.stdout_lines
+      if maria__datadirs.stdout_lines | length > 0 else
+      [maria___app._var_d]
+    }}'
+  loop_control:
+    loop_var: 'data_dir'
+
+- name: 'Config | start'
+  ansible.builtin.include_tasks: 'start.yml'

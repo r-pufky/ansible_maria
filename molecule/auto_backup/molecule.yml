@@ -28,7 +28,7 @@ provisioner:
           - name: 'test1'
             host: '%'
             password: 'test'
-        maria_cfg_databases:
+        maria_cfg_dbs:
           - name: 'skeleton'
             collation: 'utf8_unicode_520_ci'
             encoding: 'utf8'

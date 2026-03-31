@@ -1,0 +1,62 @@
+---
+###############################################################################
+# Backup
+###############################################################################
+# Deploy backup services.
+
+- name: 'Backup | enable'
+  when: maria_flg_backup
+  block:
+    - name: 'Backup | enable | set backup directory'
+      block:
+        - name: 'Backup | filesystem | set backup directory'
+          ansible.builtin.file:
+            path: '{{ maria__cfg._backup_d }}'
+            owner: '{{ maria__srv._user }}'
+            group: '{{ maria__srv._group }}'
+            mode: '0755'
+            recurse: false
+            state: 'directory'
+      rescue:
+        - name: 'Backup | filesystem | set backup directory'
+          ansible.builtin.file:
+            path: '{{ maria__cfg._backup_d }}'
+            owner: '{{ maria__srv._user }}'
+            group: '{{ maria__srv._group }}'
+            mode: '0755'
+            recurse: false
+            state: 'directory'
+          become: true
+          become_user: '{{ maria__srv._user }}'
+
+    - name: 'Backup | filesystem | set backup script'
+      notify: 'Handlers | load maria_backup'
+      ansible.builtin.template:
+        src: 'maria_backup.j2'
+        dest: '{{ maria___app._backup }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0700'
+
+    - name: 'Backup | systemd | enable backup'
+      notify: 'Handlers | enable maria_backup'
+      ansible.builtin.template:
+        src: '{{ "systemd/" ~ item ~ ".j2" }}'
+        dest: '{{ "/etc/systemd/system/" ~ item }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      loop:
+        - 'maria_backup.service'
+        - 'maria_backup.timer'
+
+- name: 'Backup | systemd | disable backup'
+  when: not maria_flg_backup
+  notify: 'Handlers | disable maria_backup'
+  ansible.builtin.file:
+    dest: '{{ item }}'
+    state: 'absent'
+  loop:
+    - '{{ maria___app._backup }}'
+    - '/etc/systemd/system/maria_backup.service'
+    - '/etc/systemd/system/maria_backup.timer'

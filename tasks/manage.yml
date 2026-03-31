@@ -2,17 +2,19 @@
 ###############################################################################
 # Manage MariaDB
 ###############################################################################
-# Manage user accounts & initial databases.
+# Manage user accounts & initial databases. Service needs to be running to
+# manage database and database users.
 #
 # Create databases before users to ensure privilege changes are applied.
 
 - name: 'Manage | DB'
   ansible.builtin.include_tasks: 'manage_db.yml'
-  loop: '{{ _maria_cfg_databases.raw }}'
+  loop: '{{ maria__cfg._dbs }}'
   loop_control:
     loop_var: 'db'
     label: '{{ db.name }}'
 
+# append_privs, subtract_privs are default omitted to be mutually exclusive.
 - name: 'Manage | users'
   community.mysql.mysql_user:
     append_privs: '{{ item.append_privs | default(omit) }}'
@@ -29,11 +31,12 @@
     force_context: '{{ item.force_context | default(false) }}'
     host: '{{ item.host | default("localhost") }}'
     host_all: '{{ item.host_all | default(false) }}'
+    locked: '{{ item.locked | default(omit) }}'
     login_host: '{{ item.login_host | default("localhost") }}'
     login_password: '{{ item.login_password | default(omit) }}'
     login_port: '{{ item.login_port | default(3306) }}'
     login_unix_socket:
-      '{{ item.login_unix_socket | default(maria_role_socket) }}'
+      '{{ item.login_unix_socket | default(maria___app._socket) }}'
     login_user: '{{ item.login_user | default(omit) }}'
     name: '{{ item.name }}'
     password: '{{ item.password | default(omit) }}'
@@ -52,6 +55,6 @@
     subtract_privs: '{{ item.subtract_privs | default(omit) }}'
     tls_requires: '{{ item.tls_requires | default(omit) }}'
     update_password: '{{ item.update_password | default("always") }}'
-  loop: '{{ _maria_cfg_users.raw }}'
+  loop: '{{ maria__cfg._users }}'
   loop_control:
     label: '{{ item.name }}'
