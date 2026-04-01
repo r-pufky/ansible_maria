@@ -72,6 +72,14 @@ maria_srv_password: '{{
            seed=inventory_hostname)
   }}'
 
+# Purge MariaDB data directories on package removal?
+#
+# DATA DESTRUCTIVE. Removes DB's, state, and config on Debian package removal.
+# Prevents 'apt remove mariadb-server' from deleting data.
+#
+# Default: False (Debian default).
+maria_srv_purge: false
+
 # MariaDB mariadb.cnf to set.
 #
 # Ansible controller path to source mariadb.cnf (treated as a jinja2 template

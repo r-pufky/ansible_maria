@@ -11,6 +11,7 @@
 
         _start=now(utc=True, fmt='%Y-%m-%dT%H%M%S'),
         _password=maria_srv_password,
+        _purge=maria_srv_purge,
         _cfg=maria_srv_cfg,
         _conf_d=maria_srv_conf_d | regex_replace('\\/$', ''),
         _secure_conf_d=maria_srv_secure_conf_d | regex_replace('\\/$', ''),
@@ -96,3 +97,10 @@
         _gid=maria__cfg_query.group,
         _home=maria__cfg_query.home,
       ) }}"
+
+- name: 'Prep | debconf | set postrm_remove_databases'
+  ansible.builtin.debconf:
+    name: 'mariadb-server'
+    question: 'mariadb-server/postrm_remove_databases'
+    vtype: 'boolean'
+    value: '{{ maria__srv._purge }}'
