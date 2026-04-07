@@ -18,7 +18,7 @@
             recurse: false
             state: 'directory'
       rescue:
-        - name: 'Backup | filesystem | set backup directory'
+        - name: 'Backup ⛑ | filesystem | set backup directory'
           ansible.builtin.file:
             path: '{{ maria__cfg._backup_d }}'
             owner: '{{ maria__srv._user }}'

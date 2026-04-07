@@ -12,15 +12,11 @@
 
 - name: 'Init'
   ansible.builtin.include_tasks: 'init.yml'
-
 - name: 'Secure'
   ansible.builtin.include_tasks: 'secure.yml'
-
 - name: 'Manage'
   ansible.builtin.include_tasks: 'manage.yml'
-
 - name: 'Backup'
   ansible.builtin.include_tasks: 'backup.yml'
-
 - name: 'Start'
   ansible.builtin.include_tasks: 'start.yml'

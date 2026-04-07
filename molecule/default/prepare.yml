@@ -31,7 +31,7 @@
         name: 'r_pufky.data.test'
         tasks_from: 'create_cache.yml'
       vars:
-        test_name: 'Prepare | create cache'
+        test_name: 'Prepare | cache'
 
     - name: 'Prepare | fact | generate secure cache location'
       ansible.builtin.set_fact:

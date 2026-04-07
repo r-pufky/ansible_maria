@@ -113,7 +113,7 @@ maria_srv_conf_d: ''
 # Ansible controller path to source secure conf.d files (treated as a jinja2
 # templates allowing for ansible variable interpretation). Overwrites existing
 # config data in /etc/mysql/secure.conf.d/* with 0750:0640 maria_srv_user,
-# maria_srv_group permissions. Certificates, etc. should be included her and
+# maria_srv_group permissions. Certificates, etc. should be included here and
 # sourced from standard conf.d and configuration files. Files not sourced will
 # be removed.
 #

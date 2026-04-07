@@ -47,10 +47,25 @@
 - name: '{{  "Install | filesystem | set minimal " ~ maria___app._conf_d }}'
   when: maria__srv._conf_d | length == 0
   block:
-    - name: '{{ "Install | filesystem | deploy " ~ maria___app._conf_d }}'
+    - name: 'Config | filetree | set managed directories'
+      ansible.builtin.file:
+        path: '{{ maria___app._conf_d ~ "/" ~ item.path }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+        state: 'directory'
+      loop: '{{
+          query("community.general.filetree",
+                "templates/default/mariadb.conf.d")
+        }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: item.state == 'directory'
+
+    - name: 'Config | filetree | set managed files'
       ansible.builtin.template:
         src: '{{ item.src }}'
-        dest: '{{ maria___app._conf_d }}'
+        dest: '{{ maria___app._conf_d ~ "/" ~ item.path }}'
         owner: 'root'
         group: 'root'
         mode: '0644'
@@ -61,22 +76,27 @@
       loop_control:
         label: '{{ item.path }}'
       when: item.state == 'file'
-      register: maria__local
 
-    - name: 'Install | filesystem | query remote files'
+    - name: 'Config | filesystem | query remote files'
       ansible.builtin.find:
         paths: '{{ maria___app._conf_d }}'
-        file_type: 'file'
+        file_type: 'any'
+        hidden: true
         recurse: true
       register: maria__remote
 
-    - name: 'Install | filesystem | remove unmanaged files'
+    - name: 'Config | filetree | remove unmanaged files and directories'
       ansible.builtin.file:
         path: '{{ item.path }}'
         state: 'absent'
-      loop: '{{ maria__remote.files }}'
+      loop: '{{ maria__remote.files | sort(attribute="path", reverse=true) }}'
       loop_control:
         label: '{{ item.path }}'
       when: >
-        item.path not in maria__local.results | selectattr('dest', 'defined') |
-        map(attribute='dest') | list
+        item.path not in
+        (
+          query("community.general.filetree",
+                "templates/default/mariadb.conf.d") |
+          map(attribute='path') |
+          map('regex_replace', '^', maria___app._conf_d ~ "/") | list
+        )

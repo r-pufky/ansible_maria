@@ -45,7 +45,8 @@
         mode: '0755'
         state: 'directory'
   rescue:
-    - name: '{{ "Init DB | filesystem | set " ~ maria__init_db._data_d }}'
+    - name:
+        '{{ "Init DB ⛑ | filesystem | set " ~ maria__init_db._data_d }}'
       ansible.builtin.file:
         path: '{{ maria__init_db._data_d }}'
         owner: '{{ maria__cfg._uid }}'

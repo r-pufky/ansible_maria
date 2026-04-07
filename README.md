@@ -123,7 +123,7 @@ Configure the MariaDB instance. mariadb.cnf, conf.d, secure.conf.d are all
 sourced from the ansible controller and templated. Place private material in
 secure.conf.d, which will automatically be locked down.
 
-MariaDB configuration is complex and nuanced. See [sytem variables][p] keeping
+MariaDB configuration is complex and nuanced. See [system variables][p] keeping
 in mind where the [role places files](#usage).
 
 Example minimum configuration to enable at-rest data encryption. Additional
@@ -192,12 +192,6 @@ Configure [environment][a].
 # Run all tests.
 molecule test --all
 ```
-
-Testing variables:
-
-  Variable            | type | Description
- ---------------------|------|-------------
-  molecule_flg_inject | bool | Flag to inject files locally.
 
 ### [Releases][b]
 

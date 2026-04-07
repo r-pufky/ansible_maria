@@ -14,64 +14,102 @@
     group: 'root'
     mode: '0644'
 
-- name: '{{ "Config | filesystem | deploy " ~ maria___app._conf_d }}'
-  ansible.builtin.template:
-    src: '{{ item.src }}'
-    dest: '{{ maria___app._conf_d }}'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-  loop: '{{ query("community.general.filetree", maria__srv._conf_d) }}'
-  loop_control:
-    label: '{{ item.path }}'
-  when: item.state == 'file'
-  register: maria__local
+- name: '{{ "Config | filesystem | set " ~ maria___app._conf_d }}'
+  block:
+    - name: 'Config | filetree | set managed directories'
+      ansible.builtin.file:
+        path: '{{ maria___app._conf_d ~ "/" ~ item.path }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+        state: 'directory'
+      loop: '{{ query("community.general.filetree", maria__srv._conf_d) }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: item.state == 'directory'
 
-- name: 'Config | filesystem | query remote files'
-  ansible.builtin.find:
-    paths: '{{ maria___app._conf_d }}'
-    file_type: 'file'
-    recurse: true
-  register: maria__remote
+    - name: 'Config | filetree | set managed files'
+      ansible.builtin.template:
+        src: '{{ item.src }}'
+        dest: '{{ maria___app._conf_d ~ "/" ~ item.path }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      loop: '{{ query("community.general.filetree", maria__srv._conf_d) }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: item.state == 'file'
 
-- name: 'Config | filesystem | remove unmanaged files'
-  ansible.builtin.file:
-    path: '{{ item.path }}'
-    state: 'absent'
-  loop: '{{ maria__remote.files }}'
-  loop_control:
-    label: '{{ item.path }}'
-  when: >
-    item.path not in maria__local.results | selectattr('dest', 'defined') |
-    map(attribute='dest') | list
+    - name: 'Config | filesystem | query remote files'
+      ansible.builtin.find:
+        paths: '{{ maria___app._conf_d }}'
+        file_type: 'any'
+        hidden: true
+        recurse: true
+      register: maria__remote
 
-- name: '{{ "Config | filesystem | deploy " ~ maria___app._secure_conf_d }}'
-  ansible.builtin.template:
-    src: '{{ item.src }}'
-    dest: '{{ maria___app._secure_conf_d }}'
-    owner: 'root'
-    group: 'root'
-    mode: '0640'
-  loop: '{{ query("community.general.filetree", maria__srv._secure_conf_d) }}'
-  loop_control:
-    label: '{{ item.path }}'
-  when: item.state == 'file'
-  register: maria__local
+    - name: 'Config | filetree | remove unmanaged files and directories'
+      ansible.builtin.file:
+        path: '{{ item.path }}'
+        state: 'absent'
+      loop: '{{ maria__remote.files | sort(attribute="path", reverse=true) }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: >
+        item.path not in
+        (
+          query("community.general.filetree", maria__srv._conf_d) |
+          map(attribute='path') |
+          map('regex_replace', '^', maria___app._conf_d ~ "/") | list
+        )
 
-- name: 'Config | filesystem | query remote files'
-  ansible.builtin.find:
-    paths: '{{ maria___app._secure_conf_d }}'
-    file_type: 'file'
-    recurse: true
-  register: maria__remote
+- name: '{{ "Config | filesystem | set " ~ maria___app._secure_conf_d }}'
+  block:
+    - name: 'Config | filetree | set managed directories'
+      ansible.builtin.file:
+        path: '{{ maria___app._secure_conf_d ~ "/" ~ item.path }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0750'
+        state: 'directory'
+      loop:
+        '{{ query("community.general.filetree", maria__srv._secure_conf_d) }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: item.state == 'directory'
 
-- name: 'Config | filesystem | remove unmanaged files'
-  ansible.builtin.file:
-    path: '{{ item.path }}'
-    state: 'absent'
-  loop: '{{ maria__remote.files }}'
-  loop_control:
-    label: '{{ item.path }}'
-  when: >
-    item.path not in maria__local.results | selectattr('dest', 'defined') |
-    map(attribute='dest') | list
+    - name: 'Config | filetree | set managed files'
+      ansible.builtin.template:
+        src: '{{ item.src }}'
+        dest: '{{ maria___app._secure_conf_d ~ "/" ~ item.path }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0640'
+      loop:
+        '{{ query("community.general.filetree", maria__srv._secure_conf_d) }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: item.state == 'file'
+
+    - name: 'Config | filesystem | query remote files'
+      ansible.builtin.find:
+        paths: '{{ maria___app._secure_conf_d }}'
+        file_type: 'any'
+        hidden: true
+        recurse: true
+      register: maria__remote
+
+    - name: 'Config | filetree | remove unmanaged files and directories'
+      ansible.builtin.file:
+        path: '{{ item.path }}'
+        state: 'absent'
+      loop: '{{ maria__remote.files | sort(attribute="path", reverse=true) }}'
+      loop_control:
+        label: '{{ item.path }}'
+      when: >
+        item.path not in
+        (
+          query("community.general.filetree", maria__srv._secure_conf_d) |
+          map(attribute='path') |
+          map('regex_replace', '^', maria___app._secure_conf_d ~ "/") | list
+        )
