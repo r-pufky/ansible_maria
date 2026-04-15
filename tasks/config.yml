@@ -15,6 +15,7 @@
     mode: '0644'
 
 - name: '{{ "Config | filesystem | set " ~ maria___app._conf_d }}'
+  when: maria__srv._conf_d | length > 0
   block:
     - name: 'Config | filetree | set managed directories'
       ansible.builtin.file:
@@ -63,7 +64,23 @@
           map('regex_replace', '^', maria___app._conf_d ~ "/") | list
         )
 
+- name: '{{ "Config | filesystem | query " ~ maria___app._conf_d }}'
+  when: maria__srv._conf_d | length == 0
+  ansible.builtin.find:
+    paths: "{{ maria___app._conf_d }}"
+    recurse: false  # Don't need to enumerate sub-directories to remove.
+    hidden: true
+  register: maria__cmd
+
+- name: '{{ "Config | filesystem | clear " ~ maria___app._conf_d }}'
+  when: maria__srv._conf_d | length == 0
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ maria__cmd.files }}"
+
 - name: '{{ "Config | filesystem | set " ~ maria___app._secure_conf_d }}'
+  when: maria__srv._secure_conf_d | length > 0
   block:
     - name: 'Config | filetree | set managed directories'
       ansible.builtin.file:
@@ -113,3 +130,18 @@
           map(attribute='path') |
           map('regex_replace', '^', maria___app._secure_conf_d ~ "/") | list
         )
+
+- name: '{{ "Config | filesystem | query " ~ maria___app._secure_conf_d }}'
+  when: maria__srv._secure_conf_d | length == 0
+  ansible.builtin.find:
+    paths: "{{ maria___app._secure_conf_d }}"
+    recurse: false  # Don't need to enumerate sub-directories to remove.
+    hidden: true
+  register: maria__cmd
+
+- name: '{{ "Config | filesystem | clear " ~ maria___app._secure_conf_d }}'
+  when: maria__srv._secure_conf_d | length == 0
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ maria__cmd.files }}"

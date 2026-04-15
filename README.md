@@ -213,7 +213,6 @@ Associate pull requests with a submitted bug.
 ## Author Information
 PGP: [466EEC2B67516C7117C85CE3A0BC35D16698BAB9][d] | [github gist][e]
 
-
 [a]: https://r-pufky.github.io/ansible_docs
 [b]: https://semver.org/spec/v2.0.0
 [c]: https://www.tldrlegal.com/license/gnu-affero-general-public-license-v3-agpl-3-0
@@ -226,6 +225,6 @@ PGP: [466EEC2B67516C7117C85CE3A0BC35D16698BAB9][d] | [github gist][e]
 [i]: https://github.com/r-pufky/ansible_maria/blob/main/meta/main.yml
 [j]: https://github.com/r-pufky/ansible_maria/tree/main/defaults/main/main.yml
 [k]: https://github.com/r-pufky/ansible_maria/blob/main/defaults/main/ports.yml
-[m]: http://r-pufky.github.io/docs/service/mariadb
+[m]: https://r-pufky.github.io/docs/db/mariadb
 [o]: https://r-pufky.github.io/ansible_docs/best_practice/patterns/#network-mounts
 [p]: https://mariadb.com/docs/server/reference/full-list-of-mariadb-options-system-and-status-variables
