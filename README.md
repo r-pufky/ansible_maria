@@ -118,6 +118,17 @@ values matching specified parameters unless noted. See [documentation][j].
             source: 'host_vars/maria.example.com/data/skeleton.sql'
 ```
 
+Large DBs may exceed tmpfs size during import. /tmp needs to be increased
+during imports for automatic import to work:
+
+``` bash
+mount -o remount,size=50% /tmp
+
+# Alternatively, switch to database service user and import directly.
+su - -s /bin/bash mysql
+mariadb -u root -p {DB} < /srv/backup/maria/{DB}-latest.sql
+```
+
 #### Instance Configuration
 Configure the MariaDB instance. mariadb.cnf, conf.d, secure.conf.d are all
 sourced from the ansible controller and templated. Place private material in
